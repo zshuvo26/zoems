@@ -46,6 +46,12 @@
           }
         }
       ]
-    ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "5bc97090-4fc2-4f3d-8405-284368d64b7b"
+      }
+    },
+    "owner": "zshuvo26"
   }
 }
