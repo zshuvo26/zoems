@@ -34,7 +34,7 @@ export const Storage = {
     await AsyncStorage.setItem(KEYS.BASE_URL, url);
   },
   async getBaseUrl(): Promise<string> {
-    return (await AsyncStorage.getItem(KEYS.BASE_URL)) ?? 'http://192.168.1.100:9091';
+    return (await AsyncStorage.getItem(KEYS.BASE_URL)) ?? 'http://192.168.51.91:9091';
   },
   async clear() {
     await AsyncStorage.multiRemove(Object.values(KEYS));

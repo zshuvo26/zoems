@@ -2,7 +2,7 @@ import axios, { AxiosError, InternalAxiosRequestConfig } from 'axios';
 import { Storage } from '../utils/storage';
 
 // Base URL is loaded from storage so the user can configure it in Settings
-let _baseURL = 'http://192.168.1.100:9091';
+let _baseURL = 'http://192.168.51.91:9091';
 
 export async function initApiClient() {
   _baseURL = await Storage.getBaseUrl();
