@@ -11,6 +11,7 @@ import { ordersApi } from '../../api';
 import { useAuthStore } from '../../store/auth';
 import { Colors, Spacing, Typography, BorderRadius } from '../../theme';
 import { formatBDT } from '../../utils/formatters';
+import { haptic } from '../../utils/haptics';
 import type { TradeStackProps } from '../../navigation/types';
 
 const schema = z.object({
@@ -64,6 +65,7 @@ export default function NewOrderScreen({ route, navigation }: TradeStackProps<'N
   const mutation = useMutation({
     mutationFn: ordersApi.submit,
     onSuccess: (order) => {
+      haptic.success();
       queryClient.invalidateQueries({ queryKey: ['openOrders'] });
       queryClient.invalidateQueries({ queryKey: ['orders'] });
       Alert.alert(
@@ -73,6 +75,7 @@ export default function NewOrderScreen({ route, navigation }: TradeStackProps<'N
       );
     },
     onError: (e: any) => {
+      haptic.error();
       Alert.alert('Order Failed', e.message ?? 'Submission failed');
     },
   });

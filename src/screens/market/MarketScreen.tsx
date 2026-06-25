@@ -19,6 +19,16 @@ const SORTS = ['None', 'Gainers', 'Losers', 'Volume'];
 export default function MarketScreen() {
   const nav              = useNavigation<any>();
   const [exchange, setExchange] = useState<'DSE' | 'CSE'>('DSE');
+
+  React.useEffect(() => {
+    nav.setOptions({
+      headerRight: () => (
+        <TouchableOpacity onPress={() => nav.navigate('Scanner')} style={{ marginRight: 4, padding: 4 }}>
+          <Ionicons name="funnel-outline" size={20} color={Colors.accent.blue} />
+        </TouchableOpacity>
+      ),
+    });
+  }, [nav]);
   const [sector, setSector]     = useState('All');
   const [sortBy, setSortBy]     = useState('None');
   const [search, setSearch]     = useState('');

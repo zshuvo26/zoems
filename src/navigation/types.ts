@@ -21,6 +21,7 @@ export type TabParamList = {
 // Market stack
 export type MarketStackParamList = {
   MarketList:       undefined;
+  Scanner:          undefined;
   InstrumentDetail: { symbol: string; exchange: string };
   OrderBook:        { symbol: string; exchange: string };
   NewOrder:         { symbol?: string; exchange?: string; side?: 'BUY' | 'SELL' };
@@ -31,6 +32,7 @@ export type TradeStackParamList = {
   OrdersList:    undefined;
   NewOrder:      { symbol?: string; exchange?: string; side?: 'BUY' | 'SELL' };
   OrderDetail:   { orderId: string };
+  OrderAudit:    { orderId: string };
   AlgoList:      undefined;
   NewAlgoOrder:  { symbol?: string; exchange?: string };
   AlgoDetail:    { algoId: string };
@@ -57,6 +59,7 @@ export type MoreStackParamList = {
   Settlement:        undefined;
   Compliance:        undefined;
   CorporateActions:  undefined;
+  RiskLimits:        undefined;
   Settings:          undefined;
 };
 

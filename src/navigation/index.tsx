@@ -14,11 +14,13 @@ import LoginScreen from '../screens/auth/LoginScreen';
 import SplashScreen from '../screens/auth/SplashScreen';
 import DashboardScreen from '../screens/dashboard/DashboardScreen';
 import MarketScreen from '../screens/market/MarketScreen';
+import MarketScannerScreen from '../screens/market/MarketScannerScreen';
 import InstrumentDetailScreen from '../screens/market/InstrumentDetailScreen';
 import OrderBookScreen from '../screens/market/OrderBookScreen';
 import OrdersScreen from '../screens/orders/OrdersScreen';
 import NewOrderScreen from '../screens/orders/NewOrderScreen';
 import OrderDetailScreen from '../screens/orders/OrderDetailScreen';
+import OrderAuditScreen from '../screens/orders/OrderAuditScreen';
 import AlgoOrdersScreen from '../screens/algo/AlgoOrdersScreen';
 import NewAlgoScreen from '../screens/algo/NewAlgoScreen';
 import BasketScreen from '../screens/basket/BasketScreen';
@@ -32,6 +34,8 @@ import IpoScreen from '../screens/more/IpoScreen';
 import MarginScreen from '../screens/more/MarginScreen';
 import SettlementScreen from '../screens/more/SettlementScreen';
 import ComplianceScreen from '../screens/more/ComplianceScreen';
+import CorporateActionsScreen from '../screens/more/CorporateActionsScreen';
+import RiskLimitsScreen from '../screens/more/RiskLimitsScreen';
 import SettingsScreen from '../screens/more/SettingsScreen';
 
 import type {
@@ -59,6 +63,7 @@ function MarketNavigator() {
   return (
     <MarketStack.Navigator screenOptions={HEADER_STYLE}>
       <MarketStack.Screen name="MarketList"        component={MarketScreen}           options={{ title: 'Market' }} />
+      <MarketStack.Screen name="Scanner"           component={MarketScannerScreen}    options={{ title: 'Market Scanner' }} />
       <MarketStack.Screen name="InstrumentDetail"  component={InstrumentDetailScreen} options={({ route }) => ({ title: route.params.symbol })} />
       <MarketStack.Screen name="OrderBook"         component={OrderBookScreen}        options={({ route }) => ({ title: `${route.params.symbol} L2` })} />
       <MarketStack.Screen name="NewOrder"          component={NewOrderScreen}         options={{ title: 'New Order', presentation: 'modal' }} />
@@ -72,6 +77,7 @@ function TradeNavigator() {
       <TradeStack.Screen name="OrdersList"   component={OrdersScreen}      options={{ title: 'Orders' }} />
       <TradeStack.Screen name="NewOrder"     component={NewOrderScreen}     options={{ title: 'New Order', presentation: 'modal' }} />
       <TradeStack.Screen name="OrderDetail"  component={OrderDetailScreen}  options={{ title: 'Order Detail' }} />
+      <TradeStack.Screen name="OrderAudit"   component={OrderAuditScreen}   options={{ title: 'Audit Trail' }} />
       <TradeStack.Screen name="AlgoList"     component={AlgoOrdersScreen}   options={{ title: 'Algo Orders' }} />
       <TradeStack.Screen name="NewAlgoOrder" component={NewAlgoScreen}      options={{ title: 'New Algo Order', presentation: 'modal' }} />
       <TradeStack.Screen name="BasketOrder"  component={BasketScreen}       options={{ title: 'Basket Order', presentation: 'modal' }} />
@@ -98,8 +104,10 @@ function MoreNavigator() {
       <MoreStack.Screen name="Ipo"              component={IpoScreen}         options={{ title: 'IPO' }} />
       <MoreStack.Screen name="Margin"           component={MarginScreen}      options={{ title: 'Margin & Risk' }} />
       <MoreStack.Screen name="Settlement"       component={SettlementScreen}  options={{ title: 'Settlement (T+2)' }} />
-      <MoreStack.Screen name="Compliance"       component={ComplianceScreen}  options={{ title: 'Compliance Rules' }} />
-      <MoreStack.Screen name="Settings"         component={SettingsScreen}    options={{ title: 'Settings' }} />
+      <MoreStack.Screen name="Compliance"        component={ComplianceScreen}       options={{ title: 'Compliance Rules' }} />
+      <MoreStack.Screen name="CorporateActions" component={CorporateActionsScreen}  options={{ title: 'Corporate Actions' }} />
+      <MoreStack.Screen name="RiskLimits"       component={RiskLimitsScreen}        options={{ title: 'Risk Limits' }} />
+      <MoreStack.Screen name="Settings"         component={SettingsScreen}          options={{ title: 'Settings' }} />
     </MoreStack.Navigator>
   );
 }

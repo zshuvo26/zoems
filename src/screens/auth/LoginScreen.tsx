@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View, Text, TextInput, TouchableOpacity,
   StyleSheet, KeyboardAvoidingView, Platform, ScrollView, Alert,
@@ -8,9 +8,15 @@ import { useForm, Controller } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Ionicons } from '@expo/vector-icons';
+import * as LocalAuthentication from 'expo-local-authentication';
+import * as SecureStore from 'expo-secure-store';
 import { Colors, Typography, Spacing, BorderRadius } from '../../theme';
 import { useAuthStore } from '../../store/auth';
 import { Storage } from '../../utils/storage';
+import { haptic } from '../../utils/haptics';
+
+const BIOMETRIC_CREDS_KEY = 'oms_biometric_creds';
+const BIOMETRIC_ENABLED_KEY = 'oms_biometric_enabled';
 
 const schema = z.object({
   serverUrl: z.string().url('Invalid URL').min(1),
@@ -28,23 +34,104 @@ const DEMO_USERS = [
 
 export default function LoginScreen() {
   const { login } = useAuthStore();
-  const [showPass, setShowPass]   = useState(false);
-  const [loading, setLoading]     = useState(false);
+  const [showPass,        setShowPass]        = useState(false);
+  const [loading,         setLoading]         = useState(false);
+  const [biometricAvail,  setBiometricAvail]  = useState(false);
+  const [biometricEnabled,setBiometricEnabled] = useState(false);
+  const [bioType,         setBioType]         = useState('Biometric');
 
   const { control, handleSubmit, setValue, formState: { errors } } = useForm<Form>({
     resolver: zodResolver(schema),
-    defaultValues: { serverUrl: 'http://192.168.1.100:9091', username: '', password: '' },
+    defaultValues: { serverUrl: 'http://192.168.51.91:9091', username: '', password: '' },
   });
+
+  useEffect(() => {
+    (async () => {
+      // Load saved server URL
+      const savedUrl = await Storage.getBaseUrl();
+      setValue('serverUrl', savedUrl);
+
+      // Check biometric hardware
+      const hasHw     = await LocalAuthentication.hasHardwareAsync();
+      const enrolled  = await LocalAuthentication.isEnrolledAsync();
+      const types     = await LocalAuthentication.supportedAuthenticationTypesAsync();
+      const enabled   = await SecureStore.getItemAsync(BIOMETRIC_ENABLED_KEY);
+
+      if (hasHw && enrolled) {
+        setBiometricAvail(true);
+        setBiometricEnabled(enabled === 'true');
+        if (types.includes(LocalAuthentication.AuthenticationType.FACIAL_RECOGNITION)) {
+          setBioType('Face ID');
+        } else if (types.includes(LocalAuthentication.AuthenticationType.FINGERPRINT)) {
+          setBioType('Fingerprint');
+        }
+      }
+    })();
+  }, []);
 
   const onSubmit = async (data: Form) => {
     setLoading(true);
     try {
       await Storage.setBaseUrl(data.serverUrl);
       await login(data.username, data.password);
+      haptic.success();
+
+      // Offer to enable biometric after first successful login
+      if (biometricAvail && !biometricEnabled) {
+        setTimeout(() => {
+          Alert.alert(
+            `Enable ${bioType} Login`,
+            `Use ${bioType} to sign in faster next time?`,
+            [
+              { text: 'Not Now', style: 'cancel' },
+              {
+                text: 'Enable',
+                onPress: async () => {
+                  await SecureStore.setItemAsync(BIOMETRIC_CREDS_KEY, JSON.stringify({ username: data.username, password: data.password, serverUrl: data.serverUrl }));
+                  await SecureStore.setItemAsync(BIOMETRIC_ENABLED_KEY, 'true');
+                  setBiometricEnabled(true);
+                },
+              },
+            ],
+          );
+        }, 500);
+      }
     } catch (e: any) {
+      haptic.error();
       Alert.alert('Login Failed', e.message ?? 'Invalid credentials');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const biometricLogin = async () => {
+    haptic.light();
+    const result = await LocalAuthentication.authenticateAsync({
+      promptMessage: `Sign in to Bangladesh OMS`,
+      cancelLabel: 'Use Password',
+      fallbackLabel: 'Use Password',
+    });
+
+    if (result.success) {
+      haptic.success();
+      const credsJson = await SecureStore.getItemAsync(BIOMETRIC_CREDS_KEY);
+      if (!credsJson) {
+        Alert.alert('Not configured', 'Please sign in with your password first to enable biometrics.');
+        return;
+      }
+      const creds = JSON.parse(credsJson);
+      setLoading(true);
+      try {
+        await Storage.setBaseUrl(creds.serverUrl);
+        await login(creds.username, creds.password);
+      } catch (e: any) {
+        haptic.error();
+        Alert.alert('Login Failed', e.message ?? 'Session expired, please use your password.');
+      } finally {
+        setLoading(false);
+      }
+    } else {
+      haptic.warning();
     }
   };
 
@@ -64,6 +151,18 @@ export default function LoginScreen() {
           <Text style={styles.sub}>DSE · CSE Professional Trading</Text>
         </View>
 
+        {/* Biometric login */}
+        {biometricAvail && biometricEnabled && (
+          <TouchableOpacity style={styles.biometricBtn} onPress={biometricLogin} activeOpacity={0.8}>
+            <Ionicons
+              name={bioType === 'Face ID' ? 'scan-outline' : 'finger-print-outline'}
+              size={28}
+              color={Colors.accent.blue}
+            />
+            <Text style={styles.biometricText}>Sign in with {bioType}</Text>
+          </TouchableOpacity>
+        )}
+
         {/* Form */}
         <View style={styles.form}>
           <Field label="Server URL" error={errors.serverUrl?.message}>
@@ -75,7 +174,7 @@ export default function LoginScreen() {
                   style={styles.input}
                   value={value}
                   onChangeText={onChange}
-                  placeholder="http://192.168.1.100:9091"
+                  placeholder="http://192.168.51.91:9091"
                   placeholderTextColor={Colors.text.muted}
                   autoCapitalize="none"
                   autoCorrect={false}
@@ -138,6 +237,14 @@ export default function LoginScreen() {
           >
             <Text style={styles.loginBtnText}>{loading ? 'Signing In…' : 'Sign In'}</Text>
           </TouchableOpacity>
+
+          {/* Biometric shortcut inside form if not yet enabled */}
+          {biometricAvail && !biometricEnabled && (
+            <TouchableOpacity style={styles.bioSetupBtn} onPress={biometricLogin} activeOpacity={0.7}>
+              <Ionicons name="finger-print-outline" size={16} color={Colors.text.muted} />
+              <Text style={styles.bioSetupText}>Enable {bioType} login</Text>
+            </TouchableOpacity>
+          )}
         </View>
 
         {/* Quick login */}
@@ -149,6 +256,7 @@ export default function LoginScreen() {
                 key={u.user}
                 style={styles.demoBtn}
                 onPress={() => {
+                  haptic.light();
                   setValue('username', u.user);
                   setValue('password', u.pass);
                 }}
@@ -192,6 +300,20 @@ const styles = StyleSheet.create({
   title:    { color: Colors.text.primary, fontSize: Typography.size.xl, fontWeight: '700' },
   sub:      { color: Colors.text.secondary, fontSize: Typography.size.sm, marginTop: 4 },
 
+  biometricBtn: {
+    flexDirection:   'row',
+    alignItems:      'center',
+    justifyContent:  'center',
+    gap:             Spacing.sm,
+    backgroundColor: Colors.accent.blue + '15',
+    borderWidth:     2,
+    borderColor:     Colors.accent.blue + '44',
+    borderRadius:    BorderRadius.xl,
+    padding:         Spacing.lg,
+    marginBottom:    Spacing.xl,
+  },
+  biometricText: { color: Colors.accent.blue, fontSize: Typography.size.base, fontWeight: '700' },
+
   form: {
     backgroundColor: Colors.bg.secondary,
     borderRadius:    BorderRadius.xl,
@@ -229,6 +351,12 @@ const styles = StyleSheet.create({
   },
   loginBtnDisabled: { opacity: 0.6 },
   loginBtnText:     { color: Colors.white, fontSize: Typography.size.base, fontWeight: '700' },
+
+  bioSetupBtn: {
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'center',
+    gap: Spacing.xs, paddingVertical: Spacing.xs,
+  },
+  bioSetupText: { color: Colors.text.muted, fontSize: Typography.size.xs },
 
   demoSection:  { marginBottom: Spacing.xl },
   demoTitle:    { color: Colors.text.muted, fontSize: Typography.size.xs, textAlign: 'center', marginBottom: Spacing.sm, letterSpacing: 1 },

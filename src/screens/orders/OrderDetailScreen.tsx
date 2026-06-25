@@ -6,6 +6,7 @@ import { ordersApi } from '../../api';
 import { LoadingView, ErrorView, Card, StatRow, Badge } from '../../components/common';
 import { Colors, Spacing, Typography, BorderRadius } from '../../theme';
 import { formatBDT, formatDateTime, orderStatusColor, formatQuantity } from '../../utils/formatters';
+import { haptic } from '../../utils/haptics';
 import type { TradeStackProps } from '../../navigation/types';
 import type { OrderStatus } from '../../types/api';
 
@@ -31,7 +32,8 @@ export default function OrderDetailScreen({ route, navigation }: TradeStackProps
       qc.invalidateQueries({ queryKey: ['orders'] });
       qc.invalidateQueries({ queryKey: ['openOrders'] });
     },
-    onError: (e: any) => Alert.alert('Error', e.message),
+    onSuccess: () => haptic.success(),
+    onError: (e: any) => { haptic.error(); Alert.alert('Error', e.message); },
   });
 
   if (isLoading) return <LoadingView />;
@@ -107,21 +109,15 @@ export default function OrderDetailScreen({ route, navigation }: TradeStackProps
         </Card>
 
         {/* Audit Trail */}
-        {audit && audit.length > 0 && (
-          <Card>
-            <Text style={styles.sectionTitle}>FIX Audit Trail</Text>
-            {audit.map((a, i) => (
-              <View key={i} style={styles.auditRow}>
-                <View style={styles.auditDot} />
-                <View style={styles.auditContent}>
-                  <Text style={styles.auditAction}>{a.action ?? a.msgType}</Text>
-                  <Text style={styles.auditTime}>{formatDateTime(a.timestamp)}</Text>
-                  {a.details && <Text style={styles.auditDetails} numberOfLines={2}>{JSON.stringify(a.details)}</Text>}
-                </View>
-              </View>
-            ))}
-          </Card>
-        )}
+        <TouchableOpacity
+          style={styles.auditBtn}
+          onPress={() => { haptic.light(); navigation.navigate('OrderAudit', { orderId }); }}
+          activeOpacity={0.7}
+        >
+          <Ionicons name="git-branch-outline" size={16} color={Colors.accent.blue} />
+          <Text style={styles.auditBtnText}>View Full FIX Audit Trail</Text>
+          <Ionicons name="chevron-forward" size={16} color={Colors.accent.blue} />
+        </TouchableOpacity>
       </ScrollView>
 
       {/* Cancel button */}
@@ -131,7 +127,7 @@ export default function OrderDetailScreen({ route, navigation }: TradeStackProps
             style={styles.cancelBtn}
             onPress={() => Alert.alert('Cancel Order', 'Are you sure?', [
               { text: 'No' },
-              { text: 'Yes, Cancel', style: 'destructive', onPress: () => cancelMut.mutate() },
+              { text: 'Yes, Cancel', style: 'destructive', onPress: () => { haptic.warning(); cancelMut.mutate(); } },
             ])}
             disabled={cancelMut.isPending}
           >
@@ -171,6 +167,13 @@ const styles = StyleSheet.create({
   auditAction:  { color: Colors.text.primary, fontSize: Typography.size.xs, fontWeight: '600' },
   auditTime:    { color: Colors.text.muted, fontSize: 10 },
   auditDetails: { color: Colors.text.muted, fontSize: 10, fontFamily: 'monospace' },
+
+  auditBtn: {
+    flexDirection: 'row', alignItems: 'center', gap: Spacing.sm,
+    backgroundColor: Colors.accent.blue + '11', borderWidth: 1, borderColor: Colors.accent.blue + '33',
+    borderRadius: BorderRadius.md, padding: Spacing.base,
+  },
+  auditBtnText: { color: Colors.accent.blue, fontSize: Typography.size.sm, fontWeight: '600', flex: 1 },
 
   footer:     { padding: Spacing.base, backgroundColor: Colors.bg.secondary, borderTopWidth: 1, borderTopColor: Colors.border.default },
   cancelBtn:  { borderWidth: 1, borderColor: Colors.bear, borderRadius: BorderRadius.md, paddingVertical: Spacing.sm, alignItems: 'center' },

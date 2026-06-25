@@ -25,14 +25,16 @@ const MENU_SECTIONS: { title: string; items: MenuItem[] }[] = [
   {
     title: 'Risk & Finance',
     items: [
-      { label: 'Margin & Risk',    icon: 'shield',       color: '#FFB547', screen: 'Margin',     description: 'Margin usage, buying power, exposure' },
-      { label: 'Settlement (T+2)', icon: 'calendar',     color: '#3D7FFF', screen: 'Settlement', description: 'Pending deliveries and receives' },
+      { label: 'Margin & Risk',    icon: 'shield',            color: '#FFB547', screen: 'Margin',           description: 'Margin usage, buying power, exposure' },
+      { label: 'Settlement (T+2)', icon: 'calendar',          color: '#3D7FFF', screen: 'Settlement',       description: 'Pending deliveries and receives' },
+      { label: 'Risk Limits',      icon: 'options',           color: '#FF6B6B', screen: 'RiskLimits',       description: 'Max order value, daily loss, margin multiplier' },
     ],
   },
   {
     title: 'Regulatory',
     items: [
-      { label: 'Compliance Rules', icon: 'document-text', color: '#9B8CF2', screen: 'Compliance', description: 'BSEC circuit breaker and order rules' },
+      { label: 'Compliance Rules',    icon: 'document-text',  color: '#9B8CF2', screen: 'Compliance',       description: 'BSEC circuit breaker and order rules' },
+      { label: 'Corporate Actions',   icon: 'gift',           color: '#00D09C', screen: 'CorporateActions', description: 'Dividends, splits, rights issues' },
     ],
   },
   {
