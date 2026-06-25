@@ -1,8 +1,8 @@
 import { apiClient } from './client';
 import type {
   LoginRequest, LoginResponse,
-  Instrument, OrderBookResponse, MarketStatusResponse, MarketBreadthResponse,
-  Order, OrderRequest, AmendRequest,
+  Instrument, OhlcvBar, OrderBookResponse, MarketStatusResponse, MarketBreadthResponse,
+  Order, OrderAuditEvent, OrderRequest, AmendRequest,
   PortfolioSummary, PerformanceResponse,
   AlgoOrder, AlgoOrderRequest,
   Account, MarginStatus, RiskLimits,
@@ -37,6 +37,9 @@ export const marketApi = {
   instrument: (symbol: string, exchange: string) =>
     apiClient.get<Instrument>(`/api/v1/instruments/${symbol}`, { params: { exchange } }).then(r => r.data),
 
+  history: (symbol: string, days = 30) =>
+    apiClient.get<OhlcvBar[]>(`/api/v1/instruments/${symbol}/history`, { params: { days } }).then(r => r.data),
+
   orderBook: (symbol: string, exchange: string) =>
     apiClient.get<OrderBookResponse>(`/api/v1/orderbook/${symbol}`, { params: { exchange } }).then(r => r.data),
 };
@@ -64,7 +67,7 @@ export const ordersApi = {
     apiClient.get<Order[]>(`/api/v1/orders/account/${accountId}/open`).then(r => r.data),
 
   audit: (orderId: string) =>
-    apiClient.get<any[]>(`/api/v1/orders/${orderId}/audit`).then(r => r.data),
+    apiClient.get<OrderAuditEvent[]>(`/api/v1/orders/${orderId}/audit`).then(r => r.data),
 };
 
 // ─── Portfolio ───────────────────────────────────────────────────────────────

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View, Text, ScrollView, TouchableOpacity, StyleSheet, Alert, Dimensions,
 } from 'react-native';
@@ -19,44 +19,28 @@ const { width: SCREEN_W } = Dimensions.get('window');
 const CHART_W = SCREEN_W - Spacing.base * 2 - 2;
 
 type Tab = 'chart' | 'stats' | 'depth';
+type Period = '1W' | '1M' | '3M';
 
-function generateIntradayData(inst: Instrument, points = 30): { value: number }[] {
-  const open   = inst.openPrice   ?? inst.lastPrice;
-  const high   = inst.highPrice   ?? inst.lastPrice * 1.02;
-  const low    = inst.lowPrice    ?? inst.lastPrice * 0.98;
-  const close  = inst.lastPrice;
-  const range  = high - low;
-
-  const data: { value: number }[] = [];
-  // First quarter: open → drift toward high
-  // Mid: high → dip toward low
-  // Final: recover to close
-  for (let i = 0; i < points; i++) {
-    const pct = i / (points - 1);
-    let base: number;
-    if (pct < 0.3) {
-      base = open + (high - open) * (pct / 0.3);
-    } else if (pct < 0.6) {
-      base = high - (high - low) * ((pct - 0.3) / 0.3);
-    } else {
-      base = low + (close - low) * ((pct - 0.6) / 0.4);
-    }
-    const noise = (Math.sin(i * 2.7) * 0.3 + Math.cos(i * 1.3) * 0.2) * range * 0.08;
-    data.push({ value: Math.round((base + noise) * 100) / 100 });
-  }
-  return data;
-}
+const PERIOD_DAYS: Record<Period, number> = { '1W': 7, '1M': 30, '3M': 90 };
 
 export default function InstrumentDetailScreen({ route, navigation }: MarketStackProps<'InstrumentDetail'>) {
   const { symbol, exchange } = route.params;
   const { accountId } = useAuthStore();
   const [livePrice, setLivePrice] = useState<Partial<Instrument>>({});
   const [tab, setTab] = useState<Tab>('chart');
+  const [period, setPeriod] = useState<Period>('1M');
 
   const { data: inst, isLoading, isError, refetch } = useQuery({
     queryKey: ['instrument', symbol, exchange],
     queryFn:  () => marketApi.instrument(symbol, exchange),
     refetchInterval: 5_000,
+  });
+
+  const { data: historyBars } = useQuery({
+    queryKey: ['history', symbol, period],
+    queryFn:  () => marketApi.history(symbol, PERIOD_DAYS[period]),
+    enabled: tab === 'chart',
+    staleTime: 5 * 60_000,
   });
 
   const { subscribe } = useWebSocket(accountId);
@@ -69,7 +53,7 @@ export default function InstrumentDetailScreen({ route, navigation }: MarketStac
   const displayPct    = livePrice.changePct   ?? inst?.changePct  ?? 0;
   const color         = changeColor(displayChange);
 
-  const chartData = useMemo(() => inst ? generateIntradayData(inst) : [], [inst?.symbol, inst?.lastPrice]);
+  const chartData = (historyBars ?? []).map(b => ({ value: b.close }));
 
   if (isLoading) return <LoadingView />;
   if (isError || !inst) return <ErrorView onRetry={refetch} />;
@@ -134,9 +118,19 @@ export default function InstrumentDetailScreen({ route, navigation }: MarketStac
         {/* CHART TAB */}
         {tab === 'chart' && (
           <View style={styles.chartContainer}>
-            <View style={styles.chartHeader}>
-              <Text style={styles.chartTitle}>Intraday Price</Text>
-              <Text style={styles.chartSub}>10:00 – 14:30 BST (simulated)</Text>
+            <View style={styles.chartHeaderRow}>
+              <Text style={styles.chartTitle}>Price History</Text>
+              <View style={styles.periodRow}>
+                {(['1W', '1M', '3M'] as Period[]).map(p => (
+                  <TouchableOpacity
+                    key={p}
+                    style={[styles.periodBtn, period === p && styles.periodBtnActive]}
+                    onPress={() => { haptic.light(); setPeriod(p); }}
+                  >
+                    <Text style={[styles.periodText, period === p && styles.periodTextActive]}>{p}</Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
             </View>
 
             <LineChart
@@ -306,9 +300,13 @@ const styles = StyleSheet.create({
     borderWidth: 1, borderColor: Colors.border.subtle,
     padding: Spacing.base, gap: Spacing.sm, overflow: 'hidden',
   },
-  chartHeader: { gap: 2 },
-  chartTitle:  { color: Colors.text.primary, fontSize: Typography.size.sm, fontWeight: '700' },
-  chartSub:    { color: Colors.text.muted, fontSize: 10 },
+  chartHeaderRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+  chartTitle:     { color: Colors.text.primary, fontSize: Typography.size.sm, fontWeight: '700' },
+  periodRow:      { flexDirection: 'row', gap: 4 },
+  periodBtn:      { paddingHorizontal: 8, paddingVertical: 3, borderRadius: 6, backgroundColor: Colors.bg.primary },
+  periodBtnActive:{ backgroundColor: Colors.accent.blue },
+  periodText:     { color: Colors.text.muted, fontSize: 11, fontWeight: '600' },
+  periodTextActive:{ color: Colors.white },
 
   ohlcRow:   { flexDirection: 'row', justifyContent: 'space-around', paddingVertical: Spacing.xs, borderTopWidth: 1, borderTopColor: Colors.border.subtle },
   ohlcItem:  { alignItems: 'center', gap: 2 },

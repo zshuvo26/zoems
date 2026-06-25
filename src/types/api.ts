@@ -375,6 +375,28 @@ export interface ComplianceRule {
   effectiveTo: string | null;
 }
 
+// ─── Chart / Price History ────────────────────────────────────────────────────
+export interface OhlcvBar {
+  date: string;
+  open: number;
+  high: number;
+  low: number;
+  close: number;
+  volume: number;
+}
+
+// ─── Order Audit ─────────────────────────────────────────────────────────────
+export interface OrderAuditEvent {
+  id: string;
+  eventType: string;
+  status: string;
+  message: string | null;
+  timestamp: string;
+  filledQty: number | null;
+  avgFillPrice: number | null;
+  rejectionReason: string | null;
+}
+
 // ─── Corporate Actions ────────────────────────────────────────────────────────
 export interface CorporateAction {
   id: string;
