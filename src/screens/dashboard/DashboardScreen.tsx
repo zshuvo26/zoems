@@ -113,10 +113,10 @@ export default function DashboardScreen() {
             <View style={styles.breadthHeader}>
               <View>
                 <Text style={styles.cardLabel}>DSEX INDEX</Text>
-                <Text style={styles.indexValue}>{breadth.indexLevel.toLocaleString()}</Text>
+                <Text style={styles.indexValue}>{(breadth.indexLevel ?? 0).toLocaleString()}</Text>
               </View>
-              <Text style={[styles.indexChange, { color: changeColor(breadth.indexChangePct) }]}>
-                {formatChangePct(breadth.indexChangePct)}
+              <Text style={[styles.indexChange, { color: changeColor(breadth.indexChangePct ?? 0) }]}>
+                {formatChangePct(breadth.indexChangePct ?? 0)}
               </Text>
             </View>
             <View style={styles.breadthStats}>
