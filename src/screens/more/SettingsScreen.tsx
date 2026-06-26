@@ -8,7 +8,7 @@ import { useAuthStore } from '../../store/auth';
 import { Colors, Spacing, Typography, BorderRadius } from '../../theme';
 
 const PRESET_SERVERS = [
-  { label: 'OMS Server',  url: 'http://192.168.51.91:9091' },
+  { label: 'OMS Server',  url: 'http://192.168.0.103:9091' },
   { label: 'Localhost',   url: 'http://10.0.2.2:9091' },
   { label: 'DSE Prod',    url: 'https://oms.dse.com.bd' },
 ];
@@ -25,7 +25,7 @@ export default function SettingsScreen() {
 
   useEffect(() => {
     Storage.getBaseUrl().then(url => {
-      const v = url ?? 'http://192.168.51.91:9091';
+      const v = url ?? 'http://192.168.0.103:9091';
       setBaseUrl(v);
       setSavedUrl(v);
     });

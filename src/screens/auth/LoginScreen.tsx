@@ -42,7 +42,7 @@ export default function LoginScreen() {
 
   const { control, handleSubmit, setValue, formState: { errors } } = useForm<Form>({
     resolver: zodResolver(schema),
-    defaultValues: { serverUrl: 'http://192.168.51.91:9091', username: '', password: '' },
+    defaultValues: { serverUrl: 'http://192.168.0.103:9091', username: '', password: '' },
   });
 
   useEffect(() => {
@@ -174,7 +174,7 @@ export default function LoginScreen() {
                   style={styles.input}
                   value={value}
                   onChangeText={onChange}
-                  placeholder="http://192.168.51.91:9091"
+                  placeholder="http://192.168.0.103:9091"
                   placeholderTextColor={Colors.text.muted}
                   autoCapitalize="none"
                   autoCorrect={false}
