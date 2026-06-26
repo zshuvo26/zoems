@@ -62,6 +62,33 @@ export default function MoreScreen() {
         </View>
       </View>
 
+      {/* AI Intelligence Hub */}
+      <View style={styles.aiHub}>
+        <View style={styles.aiHubHeader}>
+          <View style={styles.aiHubIcon}>
+            <Ionicons name="sparkles" size={20} color="#9B8CF2" />
+          </View>
+          <View style={{ flex: 1 }}>
+            <Text style={styles.aiHubTitle}>AI Intelligence Hub</Text>
+            <Text style={styles.aiHubSub}>Powered by Claude AI — DSE/CSE specialist</Text>
+          </View>
+        </View>
+        <View style={styles.aiHubButtons}>
+          <TouchableOpacity style={styles.aiBtn} onPress={() => nav.navigate('AIInsights')} activeOpacity={0.75}>
+            <Ionicons name="analytics" size={16} color="#3D7FFF" />
+            <Text style={styles.aiBtnText}>Market Signals</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.aiBtn} onPress={() => nav.navigate('AIPortfolioAdvisor')} activeOpacity={0.75}>
+            <Ionicons name="pie-chart" size={16} color="#00D09C" />
+            <Text style={styles.aiBtnText}>Portfolio Advisor</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.aiBtn} onPress={() => nav.navigate('AIChat')} activeOpacity={0.75}>
+            <Ionicons name="chatbubble-ellipses" size={16} color="#9B8CF2" />
+            <Text style={styles.aiBtnText}>AI Assistant</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+
       {MENU_SECTIONS.map(section => (
         <View key={section.title} style={styles.section}>
           <Text style={styles.sectionTitle}>{section.title}</Text>
@@ -132,4 +159,25 @@ const styles = StyleSheet.create({
   logoutText: { color: Colors.bear, fontSize: Typography.size.base, fontWeight: '700' },
 
   version: { color: Colors.text.muted, fontSize: 10, textAlign: 'center' },
+
+  // AI Hub
+  aiHub: {
+    backgroundColor: Colors.bg.secondary, borderRadius: BorderRadius.lg,
+    borderWidth: 1, borderColor: '#9B8CF2' + '44', padding: Spacing.base, gap: Spacing.sm,
+  },
+  aiHubHeader: { flexDirection: 'row', alignItems: 'center', gap: Spacing.sm },
+  aiHubIcon: {
+    width: 40, height: 40, borderRadius: 12,
+    backgroundColor: '#9B8CF2' + '22', alignItems: 'center', justifyContent: 'center',
+  },
+  aiHubTitle: { color: Colors.text.primary, fontSize: Typography.size.sm, fontWeight: '800' },
+  aiHubSub:   { color: Colors.text.muted, fontSize: 11, marginTop: 2 },
+  aiHubButtons: { flexDirection: 'row', gap: Spacing.xs },
+  aiBtn: {
+    flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center',
+    gap: 4, backgroundColor: Colors.bg.tertiary,
+    borderRadius: BorderRadius.md, borderWidth: 1, borderColor: Colors.border.default,
+    paddingVertical: Spacing.sm,
+  },
+  aiBtnText: { color: Colors.text.secondary, fontSize: 10, fontWeight: '700' },
 });

@@ -37,6 +37,9 @@ import ComplianceScreen from '../screens/more/ComplianceScreen';
 import CorporateActionsScreen from '../screens/more/CorporateActionsScreen';
 import RiskLimitsScreen from '../screens/more/RiskLimitsScreen';
 import SettingsScreen from '../screens/more/SettingsScreen';
+import AIInsightsScreen from '../screens/ai/AIInsightsScreen';
+import AIPortfolioAdvisorScreen from '../screens/ai/AIPortfolioAdvisorScreen';
+import AIChatScreen from '../screens/ai/AIChatScreen';
 
 import type {
   RootStackParamList, TabParamList,
@@ -106,8 +109,11 @@ function MoreNavigator() {
       <MoreStack.Screen name="Settlement"       component={SettlementScreen}  options={{ title: 'Settlement (T+2)' }} />
       <MoreStack.Screen name="Compliance"        component={ComplianceScreen}       options={{ title: 'Compliance Rules' }} />
       <MoreStack.Screen name="CorporateActions" component={CorporateActionsScreen}  options={{ title: 'Corporate Actions' }} />
-      <MoreStack.Screen name="RiskLimits"       component={RiskLimitsScreen}        options={{ title: 'Risk Limits' }} />
-      <MoreStack.Screen name="Settings"         component={SettingsScreen}          options={{ title: 'Settings' }} />
+      <MoreStack.Screen name="RiskLimits"       component={RiskLimitsScreen}           options={{ title: 'Risk Limits' }} />
+      <MoreStack.Screen name="Settings"         component={SettingsScreen}             options={{ title: 'Settings' }} />
+      <MoreStack.Screen name="AIInsights"         component={AIInsightsScreen}         options={{ title: 'AI Market Signals' }} />
+      <MoreStack.Screen name="AIPortfolioAdvisor" component={AIPortfolioAdvisorScreen} options={{ title: 'AI Portfolio Advisor' }} />
+      <MoreStack.Screen name="AIChat"             component={AIChatScreen}             options={{ title: 'AI Trading Assistant' }} />
     </MoreStack.Navigator>
   );
 }

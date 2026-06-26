@@ -50,17 +50,20 @@ export type PortfolioStackParamList = {
 
 // More stack
 export type MoreStackParamList = {
-  MoreMenu:          undefined;
-  Watchlist:         undefined;
-  Notifications:     undefined;
-  Ipo:               undefined;
-  IpoDetail:         { ipoId: string };
-  Margin:            undefined;
-  Settlement:        undefined;
-  Compliance:        undefined;
-  CorporateActions:  undefined;
-  RiskLimits:        undefined;
-  Settings:          undefined;
+  MoreMenu:           undefined;
+  Watchlist:          undefined;
+  Notifications:      undefined;
+  Ipo:                undefined;
+  IpoDetail:          { ipoId: string };
+  Margin:             undefined;
+  Settlement:         undefined;
+  Compliance:         undefined;
+  CorporateActions:   undefined;
+  RiskLimits:         undefined;
+  Settings:           undefined;
+  AIInsights:         undefined;
+  AIPortfolioAdvisor: undefined;
+  AIChat:             undefined;
 };
 
 export type RootStackProps<T extends keyof RootStackParamList>   = NativeStackScreenProps<RootStackParamList, T>;

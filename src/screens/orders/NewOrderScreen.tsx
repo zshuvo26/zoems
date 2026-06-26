@@ -6,13 +6,23 @@ import {
 import { useForm, Controller } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { ordersApi } from '../../api';
+import { useMutation, useQueryClient, useQuery } from '@tanstack/react-query';
+import { Ionicons } from '@expo/vector-icons';
+import { ordersApi, marketApi } from '../../api';
 import { useAuthStore } from '../../store/auth';
 import { Colors, Spacing, Typography, BorderRadius } from '../../theme';
-import { formatBDT } from '../../utils/formatters';
+import { formatBDT, formatPrice } from '../../utils/formatters';
 import { haptic } from '../../utils/haptics';
+import { quickSignalFromInstrument, type SignalType } from '../../utils/technicalAnalysis';
 import type { TradeStackProps } from '../../navigation/types';
+
+function signalColor(s: SignalType): string {
+  if (s === 'STRONG_BUY')  return Colors.bull;
+  if (s === 'BUY')         return Colors.accent.blue;
+  if (s === 'SELL')        return Colors.bear;
+  if (s === 'STRONG_SELL') return Colors.bear;
+  return Colors.text.muted;
+}
 
 const schema = z.object({
   accountId:   z.string().min(1, 'Required'),
@@ -49,12 +59,23 @@ export default function NewOrderScreen({ route, navigation }: TradeStackProps<'N
     },
   });
 
-  const watchedSide  = watch('side');
-  const watchedType  = watch('orderType');
-  const watchedPrice = watch('price');
-  const watchedQty   = watch('quantity');
-  const isBuy        = watchedSide === 'BUY';
-  const needsPrice   = watchedType === 'LIMIT' || watchedType === 'STOP_LIMIT';
+  const watchedSide     = watch('side');
+  const watchedType     = watch('orderType');
+  const watchedPrice    = watch('price');
+  const watchedQty      = watch('quantity');
+  const watchedSymbol   = watch('symbol');
+  const watchedExchange = watch('exchange');
+  const isBuy           = watchedSide === 'BUY';
+  const needsPrice      = watchedType === 'LIMIT' || watchedType === 'STOP_LIMIT';
+
+  const { data: instrumentData } = useQuery({
+    queryKey:  ['instrument', watchedSymbol, watchedExchange],
+    queryFn:   () => marketApi.instrument(watchedSymbol, watchedExchange),
+    enabled:   watchedSymbol.length >= 2,
+    staleTime: 30_000,
+  });
+
+  const aiSignal = instrumentData ? quickSignalFromInstrument(instrumentData) : null;
 
   React.useEffect(() => {
     if (watchedPrice && watchedQty) {
@@ -192,6 +213,44 @@ export default function NewOrderScreen({ route, navigation }: TradeStackProps<'N
               <Text style={styles.estimateFees}>+ brokerage 0.5% + SEC levy 0.05%{!isBuy ? ' + AIT 0.1%' : ''}</Text>
             </View>
           )}
+
+          {/* Smart Order Intelligence */}
+          {aiSignal && instrumentData && (
+            <View style={[styles.aiWidget, { borderColor: signalColor(aiSignal.signal) + '44' }]}>
+              <View style={styles.aiWidgetHeader}>
+                <Ionicons name="sparkles" size={14} color="#9B8CF2" />
+                <Text style={styles.aiWidgetTitle}>Smart Order Intelligence</Text>
+                <View style={[styles.aiBadge, { backgroundColor: signalColor(aiSignal.signal) + '22' }]}>
+                  <Text style={[styles.aiBadgeText, { color: signalColor(aiSignal.signal) }]}>
+                    {aiSignal.signal.replace('_', ' ')}
+                  </Text>
+                </View>
+              </View>
+              <View style={styles.aiWidgetBody}>
+                <View style={styles.aiStat}>
+                  <Text style={styles.aiStatLabel}>Last Price</Text>
+                  <Text style={styles.aiStatValue}>{formatPrice(instrumentData.lastPrice)}</Text>
+                </View>
+                <View style={styles.aiStat}>
+                  <Text style={styles.aiStatLabel}>Confidence</Text>
+                  <Text style={[styles.aiStatValue, { color: signalColor(aiSignal.signal) }]}>{aiSignal.confidence}%</Text>
+                </View>
+                <View style={styles.aiStat}>
+                  <Text style={styles.aiStatLabel}>Day Change</Text>
+                  <Text style={[styles.aiStatValue, { color: (instrumentData.changePct ?? 0) >= 0 ? Colors.bull : Colors.bear }]}>
+                    {(instrumentData.changePct ?? 0) >= 0 ? '+' : ''}{(instrumentData.changePct ?? 0).toFixed(2)}%
+                  </Text>
+                </View>
+              </View>
+              <Text style={styles.aiInsight}>{aiSignal.insight}</Text>
+              {Math.abs(instrumentData.changePct ?? 0) > 8 && (
+                <View style={styles.circuitWarning}>
+                  <Ionicons name="warning" size={12} color="#FFB547" />
+                  <Text style={styles.circuitText}>Near ±10% circuit breaker — execution may be halted</Text>
+                </View>
+              )}
+            </View>
+          )}
         </ScrollView>
 
         {/* Submit */}
@@ -278,4 +337,21 @@ const styles = StyleSheet.create({
   submitBtn: { borderRadius: BorderRadius.md, paddingVertical: Spacing.base, alignItems: 'center' },
   btnDisabled: { opacity: 0.6 },
   submitBtnText: { color: Colors.white, fontSize: Typography.size.base, fontWeight: '800', letterSpacing: 0.5 },
+
+  // AI widget
+  aiWidget: {
+    backgroundColor: Colors.bg.secondary, borderRadius: BorderRadius.md, borderWidth: 1,
+    padding: Spacing.base, gap: Spacing.sm, marginBottom: Spacing.sm,
+  },
+  aiWidgetHeader: { flexDirection: 'row', alignItems: 'center', gap: 6 },
+  aiWidgetTitle:  { color: Colors.text.secondary, fontSize: Typography.size.xs, fontWeight: '700', flex: 1 },
+  aiBadge:        { borderRadius: 4, paddingHorizontal: 6, paddingVertical: 2 },
+  aiBadgeText:    { fontSize: 9, fontWeight: '800', letterSpacing: 0.3 },
+  aiWidgetBody:   { flexDirection: 'row', gap: 0 },
+  aiStat:         { flex: 1, alignItems: 'center' },
+  aiStatLabel:    { color: Colors.text.muted, fontSize: 9, fontWeight: '700', letterSpacing: 0.5, marginBottom: 2 },
+  aiStatValue:    { color: Colors.text.primary, fontSize: Typography.size.xs, fontWeight: '800', fontFamily: 'monospace' },
+  aiInsight:      { color: Colors.text.muted, fontSize: 10, lineHeight: 14 },
+  circuitWarning: { flexDirection: 'row', alignItems: 'center', gap: 4, backgroundColor: '#FFB547' + '18', borderRadius: 4, padding: 6 },
+  circuitText:    { color: '#FFB547', fontSize: 10, flex: 1 },
 });

@@ -16,9 +16,12 @@ const PRESET_SERVERS = [
 export default function SettingsScreen() {
   const { logout, role, username } = useAuthStore();
 
-  const [baseUrl,       setBaseUrl]       = useState('');
-  const [savedUrl,      setSavedUrl]      = useState('');
-  const [saved,         setSaved]         = useState(false);
+  const [baseUrl,    setBaseUrl]    = useState('');
+  const [savedUrl,   setSavedUrl]   = useState('');
+  const [saved,      setSaved]      = useState(false);
+  const [claudeKey,  setClaudeKey]  = useState('');
+  const [savedKey,   setSavedKey]   = useState(false);
+  const [showApiKey, setShowApiKey] = useState(false);
 
   useEffect(() => {
     Storage.getBaseUrl().then(url => {
@@ -26,6 +29,7 @@ export default function SettingsScreen() {
       setBaseUrl(v);
       setSavedUrl(v);
     });
+    Storage.getClaudeApiKey().then(k => setClaudeKey(k ?? ''));
   }, []);
 
   const saveUrl = async () => {
@@ -40,8 +44,10 @@ export default function SettingsScreen() {
     setTimeout(() => setSaved(false), 2000);
   };
 
-  const selectPreset = (url: string) => {
-    setBaseUrl(url);
+  const saveClaudeKey = async () => {
+    await Storage.setClaudeApiKey(claudeKey.trim());
+    setSavedKey(true);
+    setTimeout(() => setSavedKey(false), 2000);
   };
 
   const confirmLogout = () => {
@@ -61,7 +67,7 @@ export default function SettingsScreen() {
     <ScrollView style={styles.root} contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled">
       {/* Server Config */}
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>OMS Server</Text>
+        <Text style={styles.sectionTitle}>OMS SERVER</Text>
         <View style={styles.card}>
           <Text style={styles.label}>Base URL</Text>
           <View style={styles.inputRow}>
@@ -77,9 +83,7 @@ export default function SettingsScreen() {
             />
           </View>
           {isDirty && (
-            <Text style={styles.dirtyNote}>
-              <Ionicons name="information-circle" size={12} color={Colors.status.warning} /> Unsaved changes — tap Save to apply
-            </Text>
+            <Text style={styles.dirtyNote}>Unsaved changes — tap Save to apply</Text>
           )}
 
           <Text style={styles.presetLabel}>Quick Select</Text>
@@ -88,30 +92,53 @@ export default function SettingsScreen() {
               <TouchableOpacity
                 key={p.url}
                 style={[styles.presetBtn, baseUrl === p.url && styles.presetBtnActive]}
-                onPress={() => selectPreset(p.url)}
+                onPress={() => setBaseUrl(p.url)}
               >
                 <Text style={[styles.presetText, baseUrl === p.url && styles.presetTextActive]}>{p.label}</Text>
               </TouchableOpacity>
             ))}
           </View>
 
-          <TouchableOpacity
-            style={[styles.saveBtn, saved && styles.saveBtnSuccess]}
-            onPress={saveUrl}
-          >
-            <Ionicons
-              name={saved ? 'checkmark-circle' : 'save'}
-              size={16}
-              color={Colors.white}
-            />
+          <TouchableOpacity style={[styles.saveBtn, saved && styles.saveBtnSuccess]} onPress={saveUrl}>
+            <Ionicons name={saved ? 'checkmark-circle' : 'save'} size={16} color={Colors.white} />
             <Text style={styles.saveBtnText}>{saved ? 'Saved!' : 'Save Server URL'}</Text>
           </TouchableOpacity>
         </View>
       </View>
 
-      {/* Account Info */}
+      {/* AI Configuration */}
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Session</Text>
+        <Text style={styles.sectionTitle}>AI CONFIGURATION</Text>
+        <View style={styles.card}>
+          <Text style={styles.label}>Claude API Key</Text>
+          <Text style={styles.aiNote}>
+            Required for AI Chat Assistant. Get your key at console.anthropic.com
+          </Text>
+          <View style={styles.inputRow}>
+            <TextInput
+              style={[styles.input, { flex: 1 }]}
+              value={claudeKey}
+              onChangeText={setClaudeKey}
+              placeholder="sk-ant-api03-..."
+              placeholderTextColor={Colors.text.muted}
+              secureTextEntry={!showApiKey}
+              autoCapitalize="none"
+              autoCorrect={false}
+            />
+            <TouchableOpacity onPress={() => setShowApiKey(v => !v)} style={styles.eyeBtn}>
+              <Ionicons name={showApiKey ? 'eye-off' : 'eye'} size={18} color={Colors.text.muted} />
+            </TouchableOpacity>
+          </View>
+          <TouchableOpacity style={[styles.saveBtn, savedKey && styles.saveBtnSuccess]} onPress={saveClaudeKey}>
+            <Ionicons name={savedKey ? 'checkmark-circle' : 'save'} size={16} color={Colors.white} />
+            <Text style={styles.saveBtnText}>{savedKey ? 'Saved!' : 'Save API Key'}</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+
+      {/* Session */}
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>SESSION</Text>
         <View style={styles.card}>
           <View style={styles.infoRow}>
             <Text style={styles.infoLabel}>Username</Text>
@@ -130,9 +157,9 @@ export default function SettingsScreen() {
         </View>
       </View>
 
-      {/* App Info */}
+      {/* About */}
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>About</Text>
+        <Text style={styles.sectionTitle}>ABOUT</Text>
         <View style={styles.card}>
           <View style={styles.infoRow}>
             <Text style={styles.infoLabel}>App Version</Text>
@@ -176,14 +203,16 @@ const styles = StyleSheet.create({
     borderColor: Colors.border.subtle, padding: Spacing.base, gap: Spacing.sm,
   },
 
-  label:     { color: Colors.text.secondary, fontSize: Typography.size.sm, fontWeight: '600' },
-  inputRow:  { flexDirection: 'row', gap: Spacing.sm },
+  label:    { color: Colors.text.secondary, fontSize: Typography.size.sm, fontWeight: '600' },
+  aiNote:   { color: Colors.text.muted, fontSize: Typography.size.xs, lineHeight: 16 },
+  inputRow: { flexDirection: 'row', gap: Spacing.xs, alignItems: 'center' },
   input: {
     flex: 1, backgroundColor: Colors.bg.tertiary, borderWidth: 1, borderColor: Colors.border.default,
     borderRadius: BorderRadius.md, paddingHorizontal: Spacing.base, paddingVertical: Spacing.sm,
     color: Colors.text.primary, fontSize: Typography.size.sm, fontFamily: 'monospace',
   },
-  dirtyNote: { color: Colors.status.warning, fontSize: Typography.size.xs },
+  eyeBtn:   { padding: Spacing.sm },
+  dirtyNote:{ color: Colors.status.warning, fontSize: Typography.size.xs },
 
   presetLabel: { color: Colors.text.muted, fontSize: 11, fontWeight: '700', letterSpacing: 0.5 },
   presets:     { flexDirection: 'row', flexWrap: 'wrap', gap: Spacing.xs },
@@ -192,10 +221,7 @@ const styles = StyleSheet.create({
   presetText:      { color: Colors.text.muted, fontSize: Typography.size.xs, fontWeight: '600' },
   presetTextActive:{ color: Colors.accent.blue },
 
-  saveBtn: {
-    flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: Spacing.xs,
-    backgroundColor: Colors.accent.blue, borderRadius: BorderRadius.md, paddingVertical: Spacing.sm,
-  },
+  saveBtn:        { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: Spacing.xs, backgroundColor: Colors.accent.blue, borderRadius: BorderRadius.md, paddingVertical: Spacing.sm },
   saveBtnSuccess: { backgroundColor: Colors.bull },
   saveBtnText:    { color: Colors.white, fontSize: Typography.size.sm, fontWeight: '800' },
 
