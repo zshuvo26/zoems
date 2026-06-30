@@ -158,7 +158,7 @@ export default function NewsScreen() {
               <Ionicons name="calendar-outline" size={14} color={Colors.status.warning} />
               <Text style={styles.corpActText}>
                 {corpActions.length} corporate action{corpActions.length > 1 ? 's' : ''} in next 7 days:
-                {' '}{corpActions.slice(0, 3).map(a => a.symbol).join(', ')}
+                {' '}{corpActions.slice(0, 3).map((a: import('../../types/api').CorporateAction) => a.symbol).join(', ')}
                 {corpActions.length > 3 ? ' +more' : ''}
               </Text>
             </View>

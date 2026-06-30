@@ -11,30 +11,39 @@ type MenuItem = {
   color:       string;
   screen:      string;
   description: string;
+  isMarket?:   boolean;
 };
 
 const MENU_SECTIONS: { title: string; items: MenuItem[] }[] = [
   {
     title: 'Trading Tools',
     items: [
-      { label: 'Watchlist',     icon: 'bookmark',      color: '#9B8CF2', screen: 'Watchlist',   description: 'Track instruments with price alerts' },
-      { label: 'Notifications', icon: 'notifications', color: '#3D7FFF', screen: 'Notifications', description: 'Order fills, price alerts, system messages' },
-      { label: 'IPO',           icon: 'rocket',        color: '#00D09C', screen: 'Ipo',          description: 'Open issues and subscription' },
+      { label: 'Watchlist',     icon: 'bookmark',      color: '#9B8CF2', screen: 'Watchlist',     description: 'Track instruments with named lists & price alerts' },
+      { label: 'Trade History', icon: 'receipt',       color: '#3D7FFF', screen: 'TradeHistory',  description: 'Full order history with CSV export' },
+      { label: 'Notifications', icon: 'notifications', color: '#FFB547', screen: 'Notifications', description: 'Order fills, price alerts, system messages' },
+      { label: 'IPO',           icon: 'rocket',        color: '#00D09C', screen: 'Ipo',           description: 'Open issues and subscription' },
+    ],
+  },
+  {
+    title: 'Research',
+    items: [
+      { label: 'Market News',      icon: 'newspaper',      color: '#3D7FFF', screen: 'News',            description: 'DSE/CSE market news and announcements' },
+      { label: 'Sector Heatmap',   icon: 'grid',           color: '#00A86B', screen: 'SectorHeatmap',   description: 'Sector performance overview', isMarket: true },
+      { label: 'Corporate Actions',icon: 'gift',           color: '#00D09C', screen: 'CorporateActions', description: 'Dividends, splits, rights issues' },
     ],
   },
   {
     title: 'Risk & Finance',
     items: [
-      { label: 'Margin & Risk',    icon: 'shield',            color: '#FFB547', screen: 'Margin',           description: 'Margin usage, buying power, exposure' },
-      { label: 'Settlement (T+2)', icon: 'calendar',          color: '#3D7FFF', screen: 'Settlement',       description: 'Pending deliveries and receives' },
-      { label: 'Risk Limits',      icon: 'options',           color: '#FF6B6B', screen: 'RiskLimits',       description: 'Max order value, daily loss, margin multiplier' },
+      { label: 'Margin & Risk',    icon: 'shield',     color: '#FFB547', screen: 'Margin',      description: 'Margin usage, buying power, exposure' },
+      { label: 'Settlement (T+2)', icon: 'calendar',   color: '#3D7FFF', screen: 'Settlement',  description: 'Pending deliveries and receives' },
+      { label: 'Risk Limits',      icon: 'options',    color: '#FF6B6B', screen: 'RiskLimits',  description: 'Max order value, daily loss, margin multiplier' },
     ],
   },
   {
     title: 'Regulatory',
     items: [
-      { label: 'Compliance Rules',    icon: 'document-text',  color: '#9B8CF2', screen: 'Compliance',       description: 'BSEC circuit breaker and order rules' },
-      { label: 'Corporate Actions',   icon: 'gift',           color: '#00D09C', screen: 'CorporateActions', description: 'Dividends, splits, rights issues' },
+      { label: 'Compliance Rules', icon: 'document-text', color: '#9B8CF2', screen: 'Compliance', description: 'BSEC circuit breaker and order rules' },
     ],
   },
   {
@@ -98,7 +107,10 @@ export default function MoreScreen() {
                 <TouchableOpacity
                   style={styles.item}
                   activeOpacity={0.7}
-                  onPress={() => nav.navigate(item.screen)}
+                  onPress={() => item.isMarket
+                    ? nav.navigate('Market', { screen: item.screen })
+                    : nav.navigate(item.screen)
+                  }
                 >
                   <View style={[styles.itemIcon, { backgroundColor: item.color + '22' }]}>
                     <Ionicons name={item.icon} size={18} color={item.color} />

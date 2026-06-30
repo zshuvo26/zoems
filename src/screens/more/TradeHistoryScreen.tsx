@@ -61,9 +61,9 @@ export default function TradeHistoryScreen() {
     const filled = (data ?? []).filter((o: Order) => o.status === 'FILLED' || o.status === 'PARTIALLY_FILLED');
     const buys  = filled.filter((o: Order) => o.side === 'BUY');
     const sells = filled.filter((o: Order) => o.side === 'SELL');
-    const totalBuy  = buys.reduce((s, o: Order)  => s + (o.netValue ?? 0), 0);
-    const totalSell = sells.reduce((s, o: Order) => s + (o.netValue ?? 0), 0);
-    const commission = filled.reduce((s, o: Order) => s + (o.commission ?? 0), 0);
+    const totalBuy  = buys.reduce((s: number, o: Order)  => s + (o.netValue ?? 0), 0);
+    const totalSell = sells.reduce((s: number, o: Order) => s + (o.netValue ?? 0), 0);
+    const commission = filled.reduce((s: number, o: Order) => s + (o.commission ?? 0), 0);
     return { fills: filled.length, totalBuy, totalSell, commission };
   }, [data]);
 
