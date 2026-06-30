@@ -13,4 +13,6 @@ public interface WatchlistRepository extends JpaRepository<Watchlist, UUID> {
     List<Watchlist> findByAccountId(String accountId);
 
     void deleteByAccountIdAndSymbol(String accountId, String symbol);
+
+    void deleteByAccountIdAndSymbolAndName(String accountId, String symbol, String name);
 }

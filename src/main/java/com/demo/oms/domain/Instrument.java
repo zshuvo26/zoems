@@ -20,33 +20,31 @@ import java.time.LocalDateTime;
 public class Instrument {
 
     @Id
-    private String symbol;          // e.g., SQURPHARMA, GP, BRACBANK
+    private String symbol;
 
-    private String name;            // full company name
+    private String name;
     private String shortName;
 
     @Enumerated(EnumType.STRING)
     private ExchangeType exchange;
 
-    private String board;           // A (main), B, Z (junk), N (new), SME, G (govt)
-    private String isin;            // BD ISIN (e.g., BD0001SQPH05)
+    private String board;
+    private String isin;
     private String sector;
     private String industry;
 
     @Column(precision = 19, scale = 4)
-    private BigDecimal lotSize = BigDecimal.ONE;  // minimum tradeable unit
+    private BigDecimal lotSize = BigDecimal.ONE;
 
     @Column(precision = 19, scale = 4)
-    private BigDecimal tickSize = new BigDecimal("0.10"); // minimum price increment
+    private BigDecimal tickSize = new BigDecimal("0.10");
 
-    // Circuit breaker limits (BSEC mandated: ±10% individual stock)
     @Column(precision = 19, scale = 4)
     private BigDecimal circuitBreakerUpperPct = new BigDecimal("10.00");
 
     @Column(precision = 19, scale = 4)
     private BigDecimal circuitBreakerLowerPct = new BigDecimal("10.00");
 
-    // Today's price data (updated by market data service)
     @Column(precision = 19, scale = 4)
     private BigDecimal previousClose;
 
@@ -74,22 +72,41 @@ public class Instrument {
     @Column(precision = 19, scale = 4)
     private BigDecimal tradedValue;
 
-    // Computed circuit limits
     @Column(precision = 19, scale = 4)
-    private BigDecimal upperCircuitLimit;  // previousClose * (1 + upperPct/100)
+    private BigDecimal upperCircuitLimit;
 
     @Column(precision = 19, scale = 4)
-    private BigDecimal lowerCircuitLimit;  // previousClose * (1 - lowerPct/100)
+    private BigDecimal lowerCircuitLimit;
 
     // Company fundamentals
     @Column(precision = 19, scale = 4)
-    private BigDecimal faceValue = new BigDecimal("10.00"); // par value in BDT
+    private BigDecimal faceValue = new BigDecimal("10.00");
 
     @Column(precision = 19, scale = 4)
     private BigDecimal marketCap;
 
     @Column(precision = 19, scale = 4)
     private BigDecimal listedShares;
+
+    // 52-week range
+    @Column(precision = 19, scale = 4)
+    private BigDecimal weekHigh52;
+
+    @Column(precision = 19, scale = 4)
+    private BigDecimal weekLow52;
+
+    // Valuation metrics
+    @Column(precision = 10, scale = 2)
+    private BigDecimal peRatio;
+
+    @Column(precision = 19, scale = 4)
+    private BigDecimal eps;
+
+    @Column(precision = 10, scale = 2)
+    private BigDecimal dividendYield;
+
+    @Column(precision = 19, scale = 4)
+    private BigDecimal bookValue;
 
     // Status flags
     private boolean tradeable = true;
@@ -99,7 +116,6 @@ public class Instrument {
 
     private LocalDateTime lastUpdated = LocalDateTime.now();
 
-    // Computed change fields — not persisted, calculated after load
     @Transient private BigDecimal change;
     @Transient private BigDecimal changePct;
 

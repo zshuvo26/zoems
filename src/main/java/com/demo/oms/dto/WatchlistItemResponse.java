@@ -14,10 +14,12 @@ public class WatchlistItemResponse {
     private String exchange;
     private String alertUpperPrice;
     private String alertLowerPrice;
-    private String notes;
+    private String notes;   // list name (from Watchlist.name)
     private BigDecimal lastPrice;
     private BigDecimal change;
     private BigDecimal changePct;
+    private String name;    // instrument display name
+    private String sector;  // instrument sector
 
     public static WatchlistItemResponse from(Watchlist w, Instrument inst) {
         WatchlistItemResponse r = new WatchlistItemResponse();
@@ -27,11 +29,13 @@ public class WatchlistItemResponse {
         r.setExchange(w.getExchange());
         r.setAlertUpperPrice(w.getAlertUpperPrice());
         r.setAlertLowerPrice(w.getAlertLowerPrice());
-        r.setNotes(w.getName());
+        r.setNotes(w.getName() != null ? w.getName() : "Default");
         if (inst != null) {
             r.setLastPrice(inst.getLastPrice());
             r.setChange(inst.getChange());
             r.setChangePct(inst.getChangePct());
+            r.setName(inst.getName());
+            r.setSector(inst.getSector());
         }
         return r;
     }
