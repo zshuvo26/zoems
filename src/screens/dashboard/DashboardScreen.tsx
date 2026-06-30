@@ -19,14 +19,16 @@ export default function DashboardScreen() {
   const nav         = useNavigation<any>();
   const { accountId, username, role } = useAuthStore();
 
-  const qMarket = useQuery({ queryKey: ['mktStatus'],        queryFn: marketApi.status, refetchInterval: 30_000 });
-  const qBreadth = useQuery({ queryKey: ['breadth', 'DSE'], queryFn: () => marketApi.breadth('DSE'), refetchInterval: 30_000 });
+  const qMarket    = useQuery({ queryKey: ['mktStatus'],        queryFn: marketApi.status, refetchInterval: 30_000 });
+  const qBreadth   = useQuery({ queryKey: ['breadth', 'DSE'],   queryFn: () => marketApi.breadth('DSE'), refetchInterval: 30_000 });
+  const qBreadthC  = useQuery({ queryKey: ['breadth', 'CSE'],   queryFn: () => marketApi.breadth('CSE'), refetchInterval: 60_000 });
   const qPortfolio = useQuery({ queryKey: ['portfolio', accountId], queryFn: () => accountId ? portfolioApi.summary(accountId) : null, enabled: !!accountId });
   const qOrders    = useQuery({ queryKey: ['openOrders', accountId], queryFn: () => accountId ? ordersApi.openOrders(accountId) : [], enabled: !!accountId });
   const qNotif     = useQuery({ queryKey: ['notifUnread', accountId], queryFn: () => accountId ? notificationsApi.unread(accountId) : [], enabled: !!accountId });
 
   const refetchAll = useCallback(() => {
-    qMarket.refetch(); qBreadth.refetch(); qPortfolio.refetch(); qOrders.refetch(); qNotif.refetch();
+    qMarket.refetch(); qBreadth.refetch(); qBreadthC.refetch();
+    qPortfolio.refetch(); qOrders.refetch(); qNotif.refetch();
   }, []);
 
   const isLoading = qMarket.isLoading || qPortfolio.isLoading;
@@ -107,32 +109,52 @@ export default function DashboardScreen() {
           </Card>
         )}
 
-        {/* DSE Breadth */}
-        {breadth && (
-          <Card style={styles.breadthCard}>
-            <View style={styles.breadthHeader}>
-              <View>
-                <Text style={styles.cardLabel}>DSEX INDEX</Text>
-                <Text style={styles.indexValue}>{(breadth.indexLevel ?? 0).toLocaleString()}</Text>
-              </View>
-              <Text style={[styles.indexChange, { color: changeColor(breadth.indexChangePct ?? 0) }]}>
+        {/* Market Indices Row */}
+        <View style={styles.indicesRow}>
+          {breadth && (
+            <TouchableOpacity
+              style={styles.indexCard}
+              onPress={() => nav.navigate('Market', { screen: 'MarketMovers' })}
+              activeOpacity={0.8}
+            >
+              <Text style={styles.indexCardLabel}>DSEX</Text>
+              <Text style={styles.indexCardValue}>{(breadth.indexLevel ?? 0).toLocaleString()}</Text>
+              <Text style={[styles.indexCardChange, { color: changeColor(breadth.indexChangePct ?? 0) }]}>
                 {formatChangePct(breadth.indexChangePct ?? 0)}
               </Text>
-            </View>
-            <View style={styles.breadthStats}>
-              <BreadthStat label="▲ Adv" value={breadth.advancers} color={Colors.bull} />
-              <BreadthStat label="▼ Dec" value={breadth.decliners}  color={Colors.bear} />
-              <BreadthStat label="= Unch" value={breadth.unchanged} color={Colors.flat} />
-              <BreadthStat label="Vol"   value={formatCompact(breadth.totalVolume)} />
-            </View>
-          </Card>
-        )}
+              <Text style={styles.indexCardSub}>▲{breadth.advancers} ▼{breadth.decliners}</Text>
+            </TouchableOpacity>
+          )}
+          {qBreadthC.data && (
+            <TouchableOpacity
+              style={styles.indexCard}
+              onPress={() => nav.navigate('Market', { screen: 'MarketMovers' })}
+              activeOpacity={0.8}
+            >
+              <Text style={styles.indexCardLabel}>CSE ALL</Text>
+              <Text style={styles.indexCardValue}>{(qBreadthC.data.indexLevel ?? 0).toLocaleString()}</Text>
+              <Text style={[styles.indexCardChange, { color: changeColor(qBreadthC.data.indexChangePct ?? 0) }]}>
+                {formatChangePct(qBreadthC.data.indexChangePct ?? 0)}
+              </Text>
+              <Text style={styles.indexCardSub}>▲{qBreadthC.data.advancers} ▼{qBreadthC.data.decliners}</Text>
+            </TouchableOpacity>
+          )}
+          <TouchableOpacity
+            style={[styles.indexCard, styles.heatmapBtn]}
+            onPress={() => nav.navigate('Market', { screen: 'SectorHeatmap' })}
+            activeOpacity={0.8}
+          >
+            <Ionicons name="grid-outline" size={22} color={Colors.accent.blue} />
+            <Text style={styles.heatmapBtnText}>Sector{'\n'}Heatmap</Text>
+          </TouchableOpacity>
+        </View>
 
         {/* Quick Actions */}
         <SectionHeader title="Quick Actions" />
         <View style={styles.quickActions}>
           <QuickAction icon="add-circle" label="Buy" color={Colors.bull} onPress={() => nav.navigate('Trade', { screen: 'NewOrder', params: { side: 'BUY' } })} />
           <QuickAction icon="remove-circle" label="Sell" color={Colors.bear} onPress={() => nav.navigate('Trade', { screen: 'NewOrder', params: { side: 'SELL' } })} />
+          <QuickAction icon="trending-up" label="Movers" color={Colors.status.pending} onPress={() => nav.navigate('Market', { screen: 'MarketMovers' })} />
           <QuickAction icon="list" label="Orders" color={Colors.accent.blue} onPress={() => nav.navigate('Trade')} />
           <QuickAction icon="bar-chart" label="Market" color={Colors.status.pending} onPress={() => nav.navigate('Market')} />
         </View>
@@ -166,8 +188,8 @@ export default function DashboardScreen() {
         {/* Top Gainers */}
         {breadth?.topGainers && breadth.topGainers.length > 0 && (
           <View style={styles.section}>
-            <SectionHeader title="Top Gainers" action="Market" onAction={() => nav.navigate('Market')} />
-            {breadth.topGainers.slice(0, 4).map(inst => (
+            <SectionHeader title="Top Gainers" action="All Movers" onAction={() => nav.navigate('Market', { screen: 'MarketMovers' })} />
+            {breadth.topGainers.slice(0, 4).map((inst: import('../../types/api').Instrument) => (
               <TouchableOpacity
                 key={inst.symbol}
                 style={styles.moverRow}
@@ -278,6 +300,19 @@ const styles = StyleSheet.create({
   pnlDivider:   { width: 1, backgroundColor: Colors.border.subtle, marginHorizontal: Spacing.xs },
   viewPortfolioBtn:{ marginTop: Spacing.sm, alignItems: 'flex-end' },
   viewPortfolioBtnText:{ color: Colors.accent.blue, fontSize: Typography.size.sm, fontWeight: '600' },
+
+  indicesRow: { flexDirection: 'row', gap: Spacing.sm },
+  indexCard: {
+    flex: 1, backgroundColor: Colors.bg.secondary, borderRadius: BorderRadius.md,
+    borderWidth: 1, borderColor: Colors.border.subtle, padding: Spacing.sm,
+    alignItems: 'center', gap: 2,
+  },
+  indexCardLabel: { color: Colors.text.muted, fontSize: 9, fontWeight: '700', letterSpacing: 0.5 },
+  indexCardValue: { color: Colors.text.primary, fontSize: Typography.size.base, fontWeight: '700', fontFamily: 'monospace' },
+  indexCardChange:{ fontSize: Typography.size.xs, fontWeight: '700' },
+  indexCardSub:   { color: Colors.text.muted, fontSize: 9 },
+  heatmapBtn:     { alignItems: 'center', justifyContent: 'center', gap: 4 },
+  heatmapBtnText: { color: Colors.accent.blue, fontSize: 10, fontWeight: '600', textAlign: 'center' },
 
   breadthCard:   { gap: Spacing.sm },
   breadthHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-end' },

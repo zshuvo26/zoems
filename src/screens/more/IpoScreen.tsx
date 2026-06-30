@@ -57,7 +57,7 @@ export default function IpoScreen() {
     <View style={styles.root}>
       <FlatList
         data={ipos}
-        keyExtractor={i => i.id}
+        keyExtractor={i => i.ipoId}
         refreshControl={<RefreshControl refreshing={isFetching} onRefresh={refetch} tintColor={Colors.accent.blue} />}
         contentContainerStyle={ipos.length === 0 ? styles.emptyContainer : { padding: Spacing.base, gap: Spacing.base, paddingBottom: 40 }}
         ListEmptyComponent={

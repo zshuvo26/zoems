@@ -136,14 +136,21 @@ export const accountsApi = {
 
 // ─── Watchlist ───────────────────────────────────────────────────────────────
 export const watchlistApi = {
-  get: (accountId: string) =>
-    apiClient.get<WatchlistItem[]>(`/api/v1/watchlists/${accountId}`).then(r => r.data),
+  get: (accountId: string, listName?: string) =>
+    apiClient.get<WatchlistItem[]>(`/api/v1/watchlists/${accountId}`, {
+      params: listName ? { listName } : undefined,
+    }).then(r => r.data),
 
-  add: (accountId: string, item: Partial<WatchlistItem>) =>
-    apiClient.post<WatchlistItem>(`/api/v1/watchlists/${accountId}`, item).then(r => r.data),
+  lists: (accountId: string) =>
+    apiClient.get<string[]>(`/api/v1/watchlists/${accountId}/lists`).then(r => r.data),
 
-  remove: (accountId: string, symbol: string) =>
-    apiClient.delete<void>(`/api/v1/watchlists/${accountId}/${symbol}`).then(r => r.data),
+  add: (accountId: string, item: Partial<WatchlistItem> & { listName?: string }) =>
+    apiClient.post<WatchlistItem>(`/api/v1/watchlists/${accountId}`, { ...item, name: item.listName ?? item.notes }).then(r => r.data),
+
+  remove: (accountId: string, symbol: string, listName?: string) =>
+    apiClient.delete<void>(`/api/v1/watchlists/${accountId}/${symbol}`, {
+      params: listName ? { listName } : undefined,
+    }).then(r => r.data),
 };
 
 // ─── Notifications ───────────────────────────────────────────────────────────

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, StyleSheet } from 'react-native';
 import { useQuery } from '@tanstack/react-query';
+import { PieChart } from 'react-native-gifted-charts';
 import { portfolioApi } from '../../api';
 import { useAuthStore } from '../../store/auth';
 import { LoadingView, ErrorView, Card, StatRow } from '../../components/common';
@@ -80,7 +81,7 @@ export default function PerformanceScreen() {
       {data?.topContributors && data.topContributors.length > 0 && (
         <Card>
           <Text style={styles.sectionTitle}>Top Contributors</Text>
-          {data.topContributors.map((c, i) => (
+          {data.topContributors.map((c: { symbol: string; contributionPct: number }, i: number) => (
             <View key={i} style={styles.contributorRow}>
               <Text style={styles.contributorSymbol}>{c.symbol}</Text>
               <Text style={[styles.contributorPct, { color: changeColor(c.contributionPct) }]}>
@@ -95,8 +96,10 @@ export default function PerformanceScreen() {
       {data?.sectorAllocations && data.sectorAllocations.length > 0 && (
         <Card>
           <Text style={styles.sectionTitle}>Sector Allocation</Text>
-          {data.sectorAllocations.map((s, i) => (
+          <SectorPieChart allocations={data.sectorAllocations} />
+          {data.sectorAllocations.map((s: { sector: string; allocationPct: number; returnPct: number }, i: number) => (
             <View key={i} style={styles.sectorRow}>
+              <View style={[styles.sectorDot, { backgroundColor: PIE_COLORS[i % PIE_COLORS.length] }]} />
               <Text style={styles.sectorName}>{s.sector}</Text>
               <Text style={styles.sectorAlloc}>{s.allocationPct?.toFixed(1)}%</Text>
               <Text style={[styles.sectorReturn, { color: changeColor(s.returnPct) }]}>
@@ -107,6 +110,38 @@ export default function PerformanceScreen() {
         </Card>
       )}
     </ScrollView>
+  );
+}
+
+const PIE_COLORS = [
+  '#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6',
+  '#EC4899', '#14B8A6', '#F97316', '#6366F1', '#84CC16',
+];
+
+function SectorPieChart({ allocations }: { allocations: Array<{ sector: string; allocationPct: number; returnPct: number }> }) {
+  const pieData = allocations.slice(0, 8).map((s, i) => ({
+    value: s.allocationPct,
+    color: PIE_COLORS[i % PIE_COLORS.length],
+    text: s.allocationPct > 5 ? `${s.allocationPct.toFixed(0)}%` : '',
+  }));
+  return (
+    <View style={{ alignItems: 'center', marginVertical: Spacing.base }}>
+      <PieChart
+        data={pieData}
+        donut
+        radius={80}
+        innerRadius={52}
+        centerLabelComponent={() => (
+          <View style={{ alignItems: 'center' }}>
+            <Text style={{ color: Colors.text.primary, fontSize: 13, fontWeight: '700' }}>Sectors</Text>
+            <Text style={{ color: Colors.text.muted, fontSize: 10 }}>{allocations.length} total</Text>
+          </View>
+        )}
+        textSize={10}
+        textColor={Colors.white}
+        labelsPosition="outward"
+      />
+    </View>
   );
 }
 
@@ -151,7 +186,8 @@ const styles = StyleSheet.create({
   contributorSymbol: { color: Colors.text.primary, fontSize: Typography.size.sm, fontWeight: '700' },
   contributorPct:    { fontSize: Typography.size.sm, fontWeight: '700' },
 
-  sectorRow:     { flexDirection: 'row', justifyContent: 'space-between', paddingVertical: Spacing.xs },
+  sectorRow:     { flexDirection: 'row', alignItems: 'center', paddingVertical: Spacing.xs, gap: 6 },
+  sectorDot:     { width: 8, height: 8, borderRadius: 4 },
   sectorName:    { color: Colors.text.secondary, fontSize: Typography.size.xs, flex: 2 },
   sectorAlloc:   { color: Colors.text.primary, fontSize: Typography.size.xs, fontWeight: '700', flex: 1, textAlign: 'center' },
   sectorReturn:  { fontSize: Typography.size.xs, fontWeight: '700', flex: 1, textAlign: 'right' },

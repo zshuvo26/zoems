@@ -13,7 +13,7 @@ const TYPE_META: Record<CorporateAction['type'], { icon: string; color: string; 
   BONUS_SHARE:    { icon: 'gift-outline',          color: Colors.accent.blue,     label: 'Bonus Share' },
   STOCK_SPLIT:    { icon: 'git-branch-outline',    color: Colors.status.warning,  label: 'Stock Split' },
   REVERSE_SPLIT:  { icon: 'git-merge-outline',     color: Colors.bear,            label: 'Reverse Split' },
-  RIGHTS_ISSUE:   { icon: 'ticket-outline',        color: Colors.accent.purple,   label: 'Rights Issue' },
+  RIGHTS_ISSUE:   { icon: 'ticket-outline',        color: Colors.status.pending,   label: 'Rights Issue' },
 };
 
 type FilterType = 'ALL' | CorporateAction['type'];
@@ -27,7 +27,7 @@ export default function CorporateActionsScreen() {
     queryFn:  () => upcoming ? corporateApi.upcoming(60) : corporateApi.all(),
   });
 
-  const items = (data ?? []).filter(item =>
+  const items = (data ?? []).filter((item: import('../../types/api').CorporateAction) =>
     filter === 'ALL' || item.type === filter
   );
 

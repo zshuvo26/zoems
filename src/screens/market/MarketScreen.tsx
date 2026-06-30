@@ -23,9 +23,17 @@ export default function MarketScreen() {
   React.useEffect(() => {
     nav.setOptions({
       headerRight: () => (
-        <TouchableOpacity onPress={() => nav.navigate('Scanner')} style={{ marginRight: 4, padding: 4 }}>
-          <Ionicons name="funnel-outline" size={20} color={Colors.accent.blue} />
-        </TouchableOpacity>
+        <View style={{ flexDirection: 'row', gap: 4, marginRight: 4 }}>
+          <TouchableOpacity onPress={() => nav.navigate('MarketMovers')} style={{ padding: 4 }}>
+            <Ionicons name="trending-up-outline" size={20} color={Colors.accent.blue} />
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() => nav.navigate('SectorHeatmap')} style={{ padding: 4 }}>
+            <Ionicons name="grid-outline" size={20} color={Colors.accent.blue} />
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() => nav.navigate('Scanner')} style={{ padding: 4 }}>
+            <Ionicons name="funnel-outline" size={20} color={Colors.accent.blue} />
+          </TouchableOpacity>
+        </View>
       ),
     });
   }, [nav]);

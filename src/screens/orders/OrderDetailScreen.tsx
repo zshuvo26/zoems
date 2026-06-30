@@ -28,11 +28,11 @@ export default function OrderDetailScreen({ route, navigation }: TradeStackProps
   const cancelMut = useMutation({
     mutationFn: () => ordersApi.cancel(orderId, 'Cancelled by user'),
     onSuccess:  () => {
+      haptic.success();
       qc.invalidateQueries({ queryKey: ['order', orderId] });
       qc.invalidateQueries({ queryKey: ['orders'] });
       qc.invalidateQueries({ queryKey: ['openOrders'] });
     },
-    onSuccess: () => haptic.success(),
     onError: (e: any) => { haptic.error(); Alert.alert('Error', e.message); },
   });
 

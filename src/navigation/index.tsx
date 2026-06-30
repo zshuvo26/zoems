@@ -17,6 +17,8 @@ import MarketScreen from '../screens/market/MarketScreen';
 import MarketScannerScreen from '../screens/market/MarketScannerScreen';
 import InstrumentDetailScreen from '../screens/market/InstrumentDetailScreen';
 import OrderBookScreen from '../screens/market/OrderBookScreen';
+import MarketMoversScreen from '../screens/market/MarketMoversScreen';
+import SectorHeatmapScreen from '../screens/market/SectorHeatmapScreen';
 import OrdersScreen from '../screens/orders/OrdersScreen';
 import NewOrderScreen from '../screens/orders/NewOrderScreen';
 import OrderDetailScreen from '../screens/orders/OrderDetailScreen';
@@ -37,6 +39,8 @@ import ComplianceScreen from '../screens/more/ComplianceScreen';
 import CorporateActionsScreen from '../screens/more/CorporateActionsScreen';
 import RiskLimitsScreen from '../screens/more/RiskLimitsScreen';
 import SettingsScreen from '../screens/more/SettingsScreen';
+import TradeHistoryScreen from '../screens/more/TradeHistoryScreen';
+import NewsScreen from '../screens/more/NewsScreen';
 import AIInsightsScreen from '../screens/ai/AIInsightsScreen';
 import AIPortfolioAdvisorScreen from '../screens/ai/AIPortfolioAdvisorScreen';
 import AIChatScreen from '../screens/ai/AIChatScreen';
@@ -67,6 +71,8 @@ function MarketNavigator() {
     <MarketStack.Navigator screenOptions={HEADER_STYLE}>
       <MarketStack.Screen name="MarketList"        component={MarketScreen}           options={{ title: 'Market' }} />
       <MarketStack.Screen name="Scanner"           component={MarketScannerScreen}    options={{ title: 'Market Scanner' }} />
+      <MarketStack.Screen name="MarketMovers"      component={MarketMoversScreen}     options={{ title: 'Market Movers' }} />
+      <MarketStack.Screen name="SectorHeatmap"     component={SectorHeatmapScreen}    options={{ title: 'Sector Heatmap' }} />
       <MarketStack.Screen name="InstrumentDetail"  component={InstrumentDetailScreen} options={({ route }) => ({ title: route.params.symbol })} />
       <MarketStack.Screen name="OrderBook"         component={OrderBookScreen}        options={({ route }) => ({ title: `${route.params.symbol} L2` })} />
       <MarketStack.Screen name="NewOrder"          component={NewOrderScreen}         options={{ title: 'New Order', presentation: 'modal' }} />
@@ -111,6 +117,8 @@ function MoreNavigator() {
       <MoreStack.Screen name="CorporateActions" component={CorporateActionsScreen}  options={{ title: 'Corporate Actions' }} />
       <MoreStack.Screen name="RiskLimits"       component={RiskLimitsScreen}           options={{ title: 'Risk Limits' }} />
       <MoreStack.Screen name="Settings"         component={SettingsScreen}             options={{ title: 'Settings' }} />
+      <MoreStack.Screen name="TradeHistory"        component={TradeHistoryScreen}       options={{ title: 'Trade History' }} />
+      <MoreStack.Screen name="News"               component={NewsScreen}               options={{ title: 'Market News' }} />
       <MoreStack.Screen name="AIInsights"         component={AIInsightsScreen}         options={{ title: 'AI Market Signals' }} />
       <MoreStack.Screen name="AIPortfolioAdvisor" component={AIPortfolioAdvisorScreen} options={{ title: 'AI Portfolio Advisor' }} />
       <MoreStack.Screen name="AIChat"             component={AIChatScreen}             options={{ title: 'AI Trading Assistant' }} />

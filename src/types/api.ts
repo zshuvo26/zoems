@@ -51,6 +51,15 @@ export interface Instrument {
   askPrice: number;
   tradeable: boolean;
   halted: boolean;
+  // Fundamentals
+  weekHigh52?: number;
+  weekLow52?: number;
+  peRatio?: number;
+  eps?: number;
+  dividendYield?: number;
+  bookValue?: number;
+  marketCap?: number;
+  listedShares?: number;
 }
 
 export interface OrderBookLevel {
@@ -270,7 +279,7 @@ export interface WatchlistItem {
   exchange: string;
   alertUpperPrice: string | null;
   alertLowerPrice: string | null;
-  notes: string | null;
+  notes: string | null;  // used as list name
   lastPrice?: number;
   change?: number;
   changePct?: number;

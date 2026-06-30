@@ -22,7 +22,7 @@ export default function RiskLimitsScreen() {
 
   const limits = [
     { label: 'Max Order Value',    value: formatBDT(data.maxOrderValue),    icon: 'cash-outline',          color: Colors.accent.blue,    desc: 'Maximum value per single order' },
-    { label: 'Max Position Value', value: formatBDT(data.maxPositionValue), icon: 'wallet-outline',         color: Colors.accent.purple,  desc: 'Maximum total position in one stock' },
+    { label: 'Max Position Value', value: formatBDT(data.maxPositionValue), icon: 'wallet-outline',         color: Colors.status.pending,  desc: 'Maximum total position in one stock' },
     { label: 'Max Orders/Day',     value: String(data.maxOrdersPerDay),     icon: 'layers-outline',         color: Colors.status.warning, desc: 'Maximum orders allowed per trading day' },
     { label: 'Max Daily Loss',     value: formatBDT(data.maxLossPerDay),    icon: 'trending-down-outline',  color: Colors.bear,           desc: 'Maximum loss allowed before trading is halted' },
     { label: 'Margin Multiplier',  value: `${data.marginMultiplier}×`,      icon: 'options-outline',        color: Colors.bull,           desc: 'Available buying power multiplier' },

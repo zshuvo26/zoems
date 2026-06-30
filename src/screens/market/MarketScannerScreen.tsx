@@ -92,7 +92,7 @@ export default function MarketScannerScreen({ navigation }: MarketStackProps<'Sc
         ))}
         <View style={styles.filterDivider} />
         {(['gainers', 'losers', 'volume', 'value'] as SortKey[]).map(s => (
-          <Chip key={s} label={s.toUpperCase()} active={sort === s} onPress={() => setSort(s)} color={Colors.accent.purple} />
+          <Chip key={s} label={s.toUpperCase()} active={sort === s} onPress={() => setSort(s)} color={Colors.status.pending} />
         ))}
       </ScrollView>
 
