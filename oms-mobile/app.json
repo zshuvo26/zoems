@@ -1,0 +1,58 @@
+{
+  "expo": {
+    "name": "OMS Bangladesh",
+    "slug": "oms-bangladesh",
+    "version": "2.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "dark",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#0A0B0D"
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.demo.oms.bangladesh",
+      "infoPlist": {
+        "NSLocalNetworkUsageDescription": "OMS requires local network access to connect to the trading server"
+      }
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#0A0B0D"
+      },
+      "package": "com.demo.oms.bangladesh",
+      "versionCode": 1,
+      "permissions": [
+        "android.permission.INTERNET",
+        "android.permission.ACCESS_NETWORK_STATE"
+      ]
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "plugins": [
+      "expo-font",
+      [
+        "expo-build-properties",
+        {
+          "android": {
+            "usesCleartextTraffic": true
+          }
+        }
+      ],
+      "expo-secure-store"
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "5bc97090-4fc2-4f3d-8405-284368d64b7b"
+      }
+    },
+    "owner": "zshuvo26"
+  }
+}

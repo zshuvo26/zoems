@@ -1,0 +1,6 @@
+target/
+*.iml
+fix-logs/
+fix-store/
+.idea/
+*.log
