@@ -18,38 +18,44 @@ const MENU_SECTIONS: { title: string; items: MenuItem[] }[] = [
   {
     title: 'Trading Tools',
     items: [
-      { label: 'Watchlist',     icon: 'bookmark',      color: '#9B8CF2', screen: 'Watchlist',     description: 'Track instruments with named lists & price alerts' },
-      { label: 'Trade History', icon: 'receipt',       color: '#3D7FFF', screen: 'TradeHistory',  description: 'Full order history with CSV export' },
-      { label: 'Notifications', icon: 'notifications', color: '#FFB547', screen: 'Notifications', description: 'Order fills, price alerts, system messages' },
-      { label: 'IPO',           icon: 'rocket',        color: '#00D09C', screen: 'Ipo',           description: 'Open issues and subscription' },
+      { label: 'Watchlist',        icon: 'bookmark',       color: '#9B8CF2', screen: 'Watchlist',       description: 'Track instruments with named lists' },
+      { label: 'Price Alerts',     icon: 'notifications',  color: '#FFB547', screen: 'PriceAlerts',     description: 'Set price targets — get notified instantly' },
+      { label: 'Order Templates',  icon: 'document-text',  color: '#3D7FFF', screen: 'OrderTemplates',  description: 'Save & reuse order configurations' },
+      { label: 'Trade History',    icon: 'receipt',        color: '#00D09C', screen: 'TradeHistory',    description: 'Full order history with CSV export' },
+      { label: 'IPO',              icon: 'rocket',         color: '#9B8CF2', screen: 'Ipo',             description: 'Open issues and subscription' },
     ],
   },
   {
-    title: 'Research',
+    title: 'Analytics',
     items: [
+      { label: 'Profit Calculator',icon: 'calculator',     color: '#00D09C', screen: 'ProfitCalculator',description: 'P&L, break-even, scenario analysis with BD fees' },
       { label: 'Market News',      icon: 'newspaper',      color: '#3D7FFF', screen: 'News',            description: 'DSE/CSE market news and announcements' },
+      { label: 'Foreign Flow (FDR)',icon: 'globe',          color: '#3D7FFF', screen: 'ForeignFlow',     description: 'Foreign investor buy/sell tracking', isMarket: true },
+      { label: 'Circuit Breaker',  icon: 'warning',        color: '#FF6B6B', screen: 'CircuitBreaker',  description: 'Instruments near ±10% daily limit', isMarket: true },
       { label: 'Sector Heatmap',   icon: 'grid',           color: '#00A86B', screen: 'SectorHeatmap',   description: 'Sector performance overview', isMarket: true },
       { label: 'Corporate Actions',icon: 'gift',           color: '#00D09C', screen: 'CorporateActions', description: 'Dividends, splits, rights issues' },
     ],
   },
   {
-    title: 'Risk & Finance',
+    title: 'Finance & Risk',
     items: [
-      { label: 'Margin & Risk',    icon: 'shield',     color: '#FFB547', screen: 'Margin',      description: 'Margin usage, buying power, exposure' },
-      { label: 'Settlement (T+2)', icon: 'calendar',   color: '#3D7FFF', screen: 'Settlement',  description: 'Pending deliveries and receives' },
-      { label: 'Risk Limits',      icon: 'options',    color: '#FF6B6B', screen: 'RiskLimits',  description: 'Max order value, daily loss, margin multiplier' },
+      { label: 'Cash Ledger',      icon: 'wallet',         color: '#00D09C', screen: 'CashLedger',      description: 'Cash balance, fund ledger & transaction history' },
+      { label: 'Margin & Risk',    icon: 'shield',         color: '#FFB547', screen: 'Margin',          description: 'Margin usage, buying power, exposure' },
+      { label: 'Settlement (T+2)', icon: 'calendar',       color: '#3D7FFF', screen: 'Settlement',      description: 'Pending deliveries and receives' },
+      { label: 'Risk Limits',      icon: 'options',        color: '#FF6B6B', screen: 'RiskLimits',      description: 'Max order value, daily loss, margin multiplier' },
     ],
   },
   {
     title: 'Regulatory',
     items: [
-      { label: 'Compliance Rules', icon: 'document-text', color: '#9B8CF2', screen: 'Compliance', description: 'BSEC circuit breaker and order rules' },
+      { label: 'Compliance Rules', icon: 'document-text',  color: '#9B8CF2', screen: 'Compliance',      description: 'BSEC circuit breaker and order rules' },
+      { label: 'Notifications',    icon: 'mail',           color: '#FFB547', screen: 'Notifications',   description: 'Order fills, system messages, alerts' },
     ],
   },
   {
     title: 'System',
     items: [
-      { label: 'Settings', icon: 'settings', color: Colors.text.muted, screen: 'Settings', description: 'Server URL, preferences' },
+      { label: 'Settings', icon: 'settings', color: Colors.text.muted, screen: 'Settings', description: 'Server URL, theme, PIN lock' },
     ],
   },
 ];

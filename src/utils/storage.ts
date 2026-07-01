@@ -1,4 +1,4 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
+﻿import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as SecureStore from 'expo-secure-store';
 
 const KEYS = {
@@ -39,7 +39,7 @@ export const Storage = {
     await AsyncStorage.setItem(KEYS.BASE_URL, url);
   },
   async getBaseUrl(): Promise<string> {
-    return (await AsyncStorage.getItem(KEYS.BASE_URL)) ?? 'http://192.168.0.103:9091';
+    return (await AsyncStorage.getItem(KEYS.BASE_URL)) ?? 'http://192.168.0.109:9091';
   },
   async setClaudeApiKey(key: string): Promise<void> {
     await SecureStore.setItemAsync(SECURE_KEYS.CLAUDE_API_KEY, key);
@@ -55,3 +55,4 @@ export const Storage = {
     await AsyncStorage.multiRemove(Object.values(KEYS));
   },
 };
+

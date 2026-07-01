@@ -1,8 +1,8 @@
-import axios, { AxiosError, InternalAxiosRequestConfig } from 'axios';
+﻿import axios, { AxiosError, InternalAxiosRequestConfig } from 'axios';
 import { Storage } from '../utils/storage';
 
 // Base URL is loaded from storage so the user can configure it in Settings
-let _baseURL = 'http://192.168.0.103:9091';
+let _baseURL = 'http://192.168.0.109:9091';
 
 export async function initApiClient() {
   _baseURL = await Storage.getBaseUrl();
@@ -26,7 +26,7 @@ apiClient.interceptors.request.use(async (config: InternalAxiosRequestConfig) =>
   return config;
 });
 
-// Unwrap ApiResponse<T> envelope → return .data field directly
+// Unwrap ApiResponse<T> envelope â†’ return .data field directly
 apiClient.interceptors.response.use(
   (res) => {
     if (res.data && typeof res.data === 'object' && 'success' in res.data) {
@@ -54,3 +54,4 @@ export class ApiError extends Error {
     this.name = 'ApiError';
   }
 }
+

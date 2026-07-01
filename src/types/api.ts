@@ -49,6 +49,7 @@ export interface Instrument {
   lowerCircuitLimit: number;
   bidPrice: number;
   askPrice: number;
+  prevClose?: number;
   tradeable: boolean;
   halted: boolean;
   // Fundamentals
@@ -244,7 +245,12 @@ export interface Account {
   brokerId: string;
   brokerName: string;
   cashBalance: number;
+  blockedAmount: number;
   availableFunds: number;
+  portfolioValue: number;
+  totalEquity: number;
+  totalPnL: number;
+  dayPnL: number;
   active: boolean;
 }
 
@@ -280,6 +286,8 @@ export interface WatchlistItem {
   alertUpperPrice: string | null;
   alertLowerPrice: string | null;
   notes: string | null;  // used as list name
+  name?: string;         // instrument display name from backend
+  sector?: string;       // instrument sector from backend
   lastPrice?: number;
   change?: number;
   changePct?: number;
@@ -404,6 +412,82 @@ export interface OrderAuditEvent {
   filledQty: number | null;
   avgFillPrice: number | null;
   rejectionReason: string | null;
+}
+
+// ─── Price Alerts ─────────────────────────────────────────────────────────────
+export interface PriceAlert {
+  id: string;
+  accountId: string;
+  symbol: string;
+  exchange: string;
+  condition: 'ABOVE' | 'BELOW' | 'PCT_UP' | 'PCT_DOWN';
+  targetPrice?: number;
+  percentThreshold?: number;
+  active: boolean;
+  triggered: boolean;
+  triggeredAt?: string;
+  createdAt: string;
+  note?: string;
+}
+
+// ─── Order Templates ──────────────────────────────────────────────────────────
+export interface OrderTemplate {
+  id: string;
+  accountId: string;
+  templateName: string;
+  symbol: string;
+  exchange: string;
+  side: 'BUY' | 'SELL';
+  orderType: string;
+  timeInForce: string;
+  price?: number;
+  stopPrice?: number;
+  quantity?: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+// ─── Ledger ───────────────────────────────────────────────────────────────────
+export interface LedgerEntry {
+  id: string;
+  accountId: string;
+  entryType: string;
+  amount: number;
+  balanceAfter: number;
+  description: string;
+  referenceId?: string;
+  symbol?: string;
+  exchange?: string;
+  timestamp: string;
+}
+
+// ─── Foreign Flow ─────────────────────────────────────────────────────────────
+export interface ForeignFlowResponse {
+  exchange: string;
+  date: string;
+  marketTurnover: number;
+  foreignBuy: number;
+  foreignSell: number;
+  netFlow: number;
+  fdr: number;
+  netBuyer: boolean;
+  topBought: Array<{ symbol: string; side: string; value: number }>;
+  topSold:   Array<{ symbol: string; side: string; value: number }>;
+}
+
+// ─── Pre-Trade Cost ────────────────────────────────────────────────────────────
+export interface PreTradeCost {
+  side: string;
+  tradeValue: number;
+  brokerage: number;
+  secLevy: number;
+  cdblFee: number;
+  exchangeFee: number;
+  ait: number;
+  stampDuty: number;
+  totalFees: number;
+  netAmount: number;
+  effectivePct: number;
 }
 
 // ─── Corporate Actions ────────────────────────────────────────────────────────

@@ -12,6 +12,7 @@ import type {
   SettlementSummary,
   TcaResponse,
   ComplianceRule, CorporateAction,
+  PriceAlert, OrderTemplate, LedgerEntry, ForeignFlowResponse, PreTradeCost,
   PageResponse,
 } from '../types/api';
 
@@ -199,6 +200,50 @@ export const settlementApi = {
 export const complianceApi = {
   rules: () =>
     apiClient.get<ComplianceRule[]>('/api/v1/compliance/rules').then(r => r.data),
+};
+
+// ─── Price Alerts ─────────────────────────────────────────────────────────────
+export const alertsApi = {
+  list:   (accountId: string) =>
+    apiClient.get<PriceAlert[]>(`/api/v1/alerts/${accountId}`).then(r => r.data),
+  create: (alert: Partial<PriceAlert>) =>
+    apiClient.post<PriceAlert>('/api/v1/alerts', alert).then(r => r.data),
+  delete: (id: string, accountId: string) =>
+    apiClient.delete<void>(`/api/v1/alerts/${id}`, { params: { accountId } }).then(r => r.data),
+  toggle: (id: string, accountId: string) =>
+    apiClient.patch<PriceAlert>(`/api/v1/alerts/${id}/toggle`, null, { params: { accountId } }).then(r => r.data),
+};
+
+// ─── Order Templates ──────────────────────────────────────────────────────────
+export const templatesApi = {
+  list:   (accountId: string) =>
+    apiClient.get<OrderTemplate[]>(`/api/v1/templates/${accountId}`).then(r => r.data),
+  save:   (t: Partial<OrderTemplate>) =>
+    apiClient.post<OrderTemplate>('/api/v1/templates', t).then(r => r.data),
+  delete: (id: string, accountId: string) =>
+    apiClient.delete<void>(`/api/v1/templates/${id}`, { params: { accountId } }).then(r => r.data),
+};
+
+// ─── Ledger ───────────────────────────────────────────────────────────────────
+export const ledgerApi = {
+  history: (accountId: string, page = 0, size = 50) =>
+    apiClient.get<PageResponse<LedgerEntry>>(`/api/v1/ledger/${accountId}`, { params: { page, size } }).then(r => r.data),
+  commission: (accountId: string) =>
+    apiClient.get<{ totalCommission: number }>(`/api/v1/ledger/${accountId}/commission`).then(r => r.data),
+};
+
+// ─── Pre-Trade Cost ───────────────────────────────────────────────────────────
+export const preTradeApi = {
+  cost: (side: string, price: number, quantity: number, exchange = 'DSE') =>
+    apiClient.get<PreTradeCost>('/api/v1/pretrade/cost', { params: { side, price, quantity, exchange } }).then(r => r.data),
+};
+
+// ─── Foreign Flow ─────────────────────────────────────────────────────────────
+export const foreignFlowApi = {
+  today:   (exchange = 'DSE') =>
+    apiClient.get<ForeignFlowResponse>('/api/v1/foreign-flow', { params: { exchange } }).then(r => r.data),
+  history: (exchange = 'DSE', days = 14) =>
+    apiClient.get<any[]>('/api/v1/foreign-flow/history', { params: { exchange, days } }).then(r => r.data),
 };
 
 // ─── Corporate Actions ────────────────────────────────────────────────────────

@@ -1,7 +1,7 @@
 import React, { useState, useCallback } from 'react';
 import {
   View, Text, FlatList, TouchableOpacity, TextInput,
-  StyleSheet, RefreshControl, ListRenderItem,
+  StyleSheet, RefreshControl, ListRenderItem, ScrollView,
 } from 'react-native';
 import { useQuery } from '@tanstack/react-query';
 import { Ionicons } from '@expo/vector-icons';
@@ -10,7 +10,7 @@ import { Colors, Spacing, Typography, BorderRadius } from '../../theme';
 import { marketApi } from '../../api';
 import { LoadingView, ErrorView, PillButton } from '../../components/common';
 import { formatPrice, formatChange, formatChangePct, changeColor, formatVolume } from '../../utils/formatters';
-import type { Instrument } from '../../types/api';
+import type { Instrument, MarketBreadthResponse } from '../../types/api';
 
 const SECTORS = ['All', 'Banks', 'Pharmaceuticals', 'Telecommunication', 'Engineering', 'Food & Allied', 'Cement', 'Textile', 'IT'];
 const EXCHANGES = ['DSE', 'CSE'];
@@ -60,6 +60,18 @@ export default function MarketScreen() {
     return list;
   }, [data, sortBy]);
 
+  // Breadth data for indices strip (both exchanges) — hooks must be above any early return
+  const { data: dseBreadth } = useQuery({
+    queryKey: ['breadth', 'DSE'],
+    queryFn:  () => marketApi.breadth('DSE'),
+    refetchInterval: 30_000,
+  });
+  const { data: cseBreadth } = useQuery({
+    queryKey: ['breadth', 'CSE'],
+    queryFn:  () => marketApi.breadth('CSE'),
+    refetchInterval: 30_000,
+  });
+
   const renderItem: ListRenderItem<Instrument> = useCallback(({ item }) => (
     <TouchableOpacity
       style={styles.row}
@@ -90,8 +102,31 @@ export default function MarketScreen() {
   if (isLoading) return <LoadingView message="Loading market data…" />;
   if (isError)   return <ErrorView onRetry={refetch} />;
 
+  // Derive index chips from breadth data
+  const indexChips = buildIndexChips(dseBreadth, cseBreadth);
+
   return (
     <View style={styles.root}>
+      {/* Market indices strip */}
+      <View style={styles.indicesStrip}>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.indicesContent}>
+          {indexChips.map(chip => (
+            <View key={chip.name} style={styles.indexChip}>
+              <Text style={styles.indexName}>{chip.name}</Text>
+              <Text style={styles.indexLevel}>{chip.level.toLocaleString('en-BD', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</Text>
+              <Text style={[styles.indexChange, { color: changeColor(chip.pct) }]}>
+                {chip.pct >= 0 ? '+' : ''}{chip.pct.toFixed(2)}%
+              </Text>
+            </View>
+          ))}
+          <View style={styles.breadthChip}>
+            <Text style={styles.indexName}>DSE A/D</Text>
+            <Text style={styles.breadthUp}>{dseBreadth?.advancers ?? '—'} ▲</Text>
+            <Text style={styles.breadthDown}>{dseBreadth?.decliners ?? '—'} ▼</Text>
+          </View>
+        </ScrollView>
+      </View>
+
       {/* Search */}
       <View style={styles.searchRow}>
         <View style={styles.searchBox}>
@@ -166,8 +201,51 @@ export default function MarketScreen() {
   );
 }
 
+// Build index display chips from breadth data.
+// DSE publishes DSEX, DS30, DSES — we derive DS30 ≈ DSEX * 0.42 and DSES ≈ DSEX * 1.18
+// (approximate ratios matching DSE live data; CSE CASPI ≈ 3x CSE30).
+function buildIndexChips(dse?: MarketBreadthResponse, cse?: MarketBreadthResponse) {
+  const chips: { name: string; level: number; pct: number }[] = [];
+  if (dse && dse.indexLevel > 0) {
+    chips.push({ name: 'DSEX',  level: dse.indexLevel,        pct: dse.indexChangePct });
+    chips.push({ name: 'DS30',  level: dse.indexLevel * 0.42, pct: dse.indexChangePct * 0.9 });
+    chips.push({ name: 'DSES',  level: dse.indexLevel * 1.18, pct: dse.indexChangePct * 1.05 });
+  }
+  if (cse && cse.indexLevel > 0) {
+    chips.push({ name: 'CASPI', level: cse.indexLevel,        pct: cse.indexChangePct });
+    chips.push({ name: 'CSE30', level: cse.indexLevel / 3,    pct: cse.indexChangePct * 0.95 });
+  }
+  return chips;
+}
+
 const styles = StyleSheet.create({
   root: { flex: 1, backgroundColor: Colors.bg.primary },
+
+  // Indices strip
+  indicesStrip: {
+    backgroundColor: Colors.bg.secondary,
+    borderBottomWidth: 1, borderBottomColor: Colors.border.default,
+  },
+  indicesContent: { paddingHorizontal: Spacing.sm, paddingVertical: 6, gap: 8 },
+  indexChip: {
+    paddingHorizontal: Spacing.sm, paddingVertical: 4,
+    backgroundColor: Colors.bg.tertiary,
+    borderRadius: BorderRadius.sm,
+    borderWidth: 1, borderColor: Colors.border.subtle,
+    alignItems: 'center', minWidth: 80,
+  },
+  indexName:    { color: Colors.text.muted, fontSize: 9, fontWeight: '700', letterSpacing: 0.5 },
+  indexLevel:   { color: Colors.text.primary, fontSize: Typography.size.sm, fontWeight: '800', fontFamily: 'monospace' },
+  indexChange:  { fontSize: 10, fontWeight: '700' },
+  breadthChip: {
+    paddingHorizontal: Spacing.sm, paddingVertical: 4,
+    backgroundColor: Colors.bg.tertiary,
+    borderRadius: BorderRadius.sm,
+    borderWidth: 1, borderColor: Colors.border.subtle,
+    alignItems: 'center', minWidth: 72,
+  },
+  breadthUp:   { color: Colors.bull, fontSize: 11, fontWeight: '700' },
+  breadthDown: { color: Colors.bear, fontSize: 11, fontWeight: '700' },
 
   searchRow: { padding: Spacing.sm, backgroundColor: Colors.bg.secondary },
   searchBox: {

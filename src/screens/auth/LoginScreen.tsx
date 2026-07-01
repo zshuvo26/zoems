@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import {
   View, Text, TextInput, TouchableOpacity,
   StyleSheet, KeyboardAvoidingView, Platform, ScrollView, Alert,
@@ -42,7 +42,7 @@ export default function LoginScreen() {
 
   const { control, handleSubmit, setValue, formState: { errors } } = useForm<Form>({
     resolver: zodResolver(schema),
-    defaultValues: { serverUrl: 'http://192.168.0.103:9091', username: '', password: '' },
+    defaultValues: { serverUrl: 'http://192.168.0.109:9091', username: '', password: '' },
   });
 
   useEffect(() => {
@@ -148,7 +148,7 @@ export default function LoginScreen() {
             <Text style={styles.logoText}>OMS</Text>
           </View>
           <Text style={styles.title}>Bangladesh OMS</Text>
-          <Text style={styles.sub}>DSE · CSE Professional Trading</Text>
+          <Text style={styles.sub}>DSE Â· CSE Professional Trading</Text>
         </View>
 
         {/* Biometric login */}
@@ -174,7 +174,7 @@ export default function LoginScreen() {
                   style={styles.input}
                   value={value}
                   onChangeText={onChange}
-                  placeholder="http://192.168.0.103:9091"
+                  placeholder="http://192.168.0.109:9091"
                   placeholderTextColor={Colors.text.muted}
                   autoCapitalize="none"
                   autoCorrect={false}
@@ -235,7 +235,7 @@ export default function LoginScreen() {
             disabled={loading}
             activeOpacity={0.8}
           >
-            <Text style={styles.loginBtnText}>{loading ? 'Signing In…' : 'Sign In'}</Text>
+            <Text style={styles.loginBtnText}>{loading ? 'Signing Inâ€¦' : 'Sign In'}</Text>
           </TouchableOpacity>
 
           {/* Biometric shortcut inside form if not yet enabled */}
@@ -268,7 +268,7 @@ export default function LoginScreen() {
           </View>
         </View>
 
-        <Text style={styles.footer}>v2.0.0 · Bangladesh DSE/CSE · FIX 4.4</Text>
+        <Text style={styles.footer}>v2.0.0 Â· Bangladesh DSE/CSE Â· FIX 4.4</Text>
       </ScrollView>
     </KeyboardAvoidingView>
   );
@@ -376,3 +376,4 @@ const styles = StyleSheet.create({
 
   footer: { textAlign: 'center', color: Colors.text.muted, fontSize: Typography.size.xs },
 });
+

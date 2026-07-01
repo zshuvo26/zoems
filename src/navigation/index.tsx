@@ -19,6 +19,8 @@ import InstrumentDetailScreen from '../screens/market/InstrumentDetailScreen';
 import OrderBookScreen from '../screens/market/OrderBookScreen';
 import MarketMoversScreen from '../screens/market/MarketMoversScreen';
 import SectorHeatmapScreen from '../screens/market/SectorHeatmapScreen';
+import CircuitBreakerScreen from '../screens/market/CircuitBreakerScreen';
+import ForeignFlowScreen from '../screens/market/ForeignFlowScreen';
 import OrdersScreen from '../screens/orders/OrdersScreen';
 import NewOrderScreen from '../screens/orders/NewOrderScreen';
 import OrderDetailScreen from '../screens/orders/OrderDetailScreen';
@@ -28,6 +30,7 @@ import NewAlgoScreen from '../screens/algo/NewAlgoScreen';
 import BasketScreen from '../screens/basket/BasketScreen';
 import PortfolioScreen from '../screens/portfolio/PortfolioScreen';
 import PerformanceScreen from '../screens/portfolio/PerformanceScreen';
+import RebalanceScreen from '../screens/portfolio/RebalanceScreen';
 import TcaScreen from '../screens/portfolio/TcaScreen';
 import WatchlistScreen from '../screens/watchlist/WatchlistScreen';
 import NotificationsScreen from '../screens/notifications/NotificationsScreen';
@@ -41,6 +44,10 @@ import RiskLimitsScreen from '../screens/more/RiskLimitsScreen';
 import SettingsScreen from '../screens/more/SettingsScreen';
 import TradeHistoryScreen from '../screens/more/TradeHistoryScreen';
 import NewsScreen from '../screens/more/NewsScreen';
+import PriceAlertsScreen from '../screens/more/PriceAlertsScreen';
+import OrderTemplatesScreen from '../screens/more/OrderTemplatesScreen';
+import CashLedgerScreen from '../screens/more/CashLedgerScreen';
+import ProfitCalculatorScreen from '../screens/more/ProfitCalculatorScreen';
 import AIInsightsScreen from '../screens/ai/AIInsightsScreen';
 import AIPortfolioAdvisorScreen from '../screens/ai/AIPortfolioAdvisorScreen';
 import AIChatScreen from '../screens/ai/AIChatScreen';
@@ -73,6 +80,8 @@ function MarketNavigator() {
       <MarketStack.Screen name="Scanner"           component={MarketScannerScreen}    options={{ title: 'Market Scanner' }} />
       <MarketStack.Screen name="MarketMovers"      component={MarketMoversScreen}     options={{ title: 'Market Movers' }} />
       <MarketStack.Screen name="SectorHeatmap"     component={SectorHeatmapScreen}    options={{ title: 'Sector Heatmap' }} />
+      <MarketStack.Screen name="CircuitBreaker"    component={CircuitBreakerScreen}   options={{ title: 'Circuit Breaker Monitor' }} />
+      <MarketStack.Screen name="ForeignFlow"       component={ForeignFlowScreen}      options={{ title: 'Foreign Investor Flow (FDR)' }} />
       <MarketStack.Screen name="InstrumentDetail"  component={InstrumentDetailScreen} options={({ route }) => ({ title: route.params.symbol })} />
       <MarketStack.Screen name="OrderBook"         component={OrderBookScreen}        options={({ route }) => ({ title: `${route.params.symbol} L2` })} />
       <MarketStack.Screen name="NewOrder"          component={NewOrderScreen}         options={{ title: 'New Order', presentation: 'modal' }} />
@@ -99,6 +108,7 @@ function PortfolioNavigator() {
     <PortfolioStack.Navigator screenOptions={HEADER_STYLE}>
       <PortfolioStack.Screen name="PortfolioSummary" component={PortfolioScreen}    options={{ title: 'Portfolio' }} />
       <PortfolioStack.Screen name="Performance"      component={PerformanceScreen}  options={{ title: 'Performance' }} />
+      <PortfolioStack.Screen name="Rebalance"        component={RebalanceScreen}    options={{ title: 'Portfolio Rebalancer' }} />
       <PortfolioStack.Screen name="Tca"              component={TcaScreen}          options={{ title: 'TCA Analysis' }} />
     </PortfolioStack.Navigator>
   );
@@ -119,6 +129,10 @@ function MoreNavigator() {
       <MoreStack.Screen name="Settings"         component={SettingsScreen}             options={{ title: 'Settings' }} />
       <MoreStack.Screen name="TradeHistory"        component={TradeHistoryScreen}       options={{ title: 'Trade History' }} />
       <MoreStack.Screen name="News"               component={NewsScreen}               options={{ title: 'Market News' }} />
+      <MoreStack.Screen name="PriceAlerts"        component={PriceAlertsScreen}        options={{ title: 'Price Alerts' }} />
+      <MoreStack.Screen name="OrderTemplates"     component={OrderTemplatesScreen}     options={{ title: 'Order Templates' }} />
+      <MoreStack.Screen name="CashLedger"         component={CashLedgerScreen}         options={{ title: 'Cash Ledger' }} />
+      <MoreStack.Screen name="ProfitCalculator"   component={ProfitCalculatorScreen}   options={{ title: 'Profit Calculator' }} />
       <MoreStack.Screen name="AIInsights"         component={AIInsightsScreen}         options={{ title: 'AI Market Signals' }} />
       <MoreStack.Screen name="AIPortfolioAdvisor" component={AIPortfolioAdvisorScreen} options={{ title: 'AI Portfolio Advisor' }} />
       <MoreStack.Screen name="AIChat"             component={AIChatScreen}             options={{ title: 'AI Trading Assistant' }} />

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import {
   View, Text, TextInput, TouchableOpacity, ScrollView, StyleSheet, Alert,
 } from 'react-native';
@@ -8,7 +8,7 @@ import { useAuthStore } from '../../store/auth';
 import { Colors, Spacing, Typography, BorderRadius } from '../../theme';
 
 const PRESET_SERVERS = [
-  { label: 'OMS Server',  url: 'http://192.168.0.103:9091' },
+  { label: 'OMS Server',  url: 'http://192.168.0.109:9091' },
   { label: 'Localhost',   url: 'http://10.0.2.2:9091' },
   { label: 'DSE Prod',    url: 'https://oms.dse.com.bd' },
 ];
@@ -25,7 +25,7 @@ export default function SettingsScreen() {
 
   useEffect(() => {
     Storage.getBaseUrl().then(url => {
-      const v = url ?? 'http://192.168.0.103:9091';
+      const v = url ?? 'http://192.168.0.109:9091';
       setBaseUrl(v);
       setSavedUrl(v);
     });
@@ -83,7 +83,7 @@ export default function SettingsScreen() {
             />
           </View>
           {isDirty && (
-            <Text style={styles.dirtyNote}>Unsaved changes — tap Save to apply</Text>
+            <Text style={styles.dirtyNote}>Unsaved changes â€” tap Save to apply</Text>
           )}
 
           <Text style={styles.presetLabel}>Quick Select</Text>
@@ -142,12 +142,12 @@ export default function SettingsScreen() {
         <View style={styles.card}>
           <View style={styles.infoRow}>
             <Text style={styles.infoLabel}>Username</Text>
-            <Text style={styles.infoValue}>{username ?? '—'}</Text>
+            <Text style={styles.infoValue}>{username ?? 'â€”'}</Text>
           </View>
           <View style={styles.divider} />
           <View style={styles.infoRow}>
             <Text style={styles.infoLabel}>Role</Text>
-            <Text style={styles.infoValue}>{role ?? '—'}</Text>
+            <Text style={styles.infoValue}>{role ?? 'â€”'}</Text>
           </View>
           <View style={styles.divider} />
           <View style={styles.infoRow}>
@@ -178,7 +178,7 @@ export default function SettingsScreen() {
           <View style={styles.divider} />
           <View style={styles.infoRow}>
             <Text style={styles.infoLabel}>Settlement</Text>
-            <Text style={styles.infoValue}>T+2 (BST Sun–Thu 10:00–14:30)</Text>
+            <Text style={styles.infoValue}>T+2 (BST Sunâ€“Thu 10:00â€“14:30)</Text>
           </View>
         </View>
       </View>
@@ -234,3 +234,4 @@ const styles = StyleSheet.create({
   logoutBtn:  { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: Spacing.sm, paddingVertical: Spacing.base, borderRadius: BorderRadius.md, borderWidth: 1, borderColor: Colors.bear + '44' },
   logoutText: { color: Colors.bear, fontSize: Typography.size.base, fontWeight: '700' },
 });
+

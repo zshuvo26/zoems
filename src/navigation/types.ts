@@ -24,9 +24,11 @@ export type MarketStackParamList = {
   Scanner:          undefined;
   MarketMovers:     undefined;
   SectorHeatmap:    undefined;
+  CircuitBreaker:   undefined;
+  ForeignFlow:      undefined;
   InstrumentDetail: { symbol: string; exchange: string };
   OrderBook:        { symbol: string; exchange: string };
-  NewOrder:         { symbol?: string; exchange?: string; side?: 'BUY' | 'SELL' };
+  NewOrder:         { symbol?: string; exchange?: string; side?: 'BUY' | 'SELL'; orderType?: string; timeInForce?: string; price?: number; quantity?: number; stopPrice?: number };
 };
 
 // Trade stack
@@ -46,6 +48,7 @@ export type PortfolioStackParamList = {
   PortfolioSummary:   undefined;
   PositionDetail:     { symbol: string; exchange: string };
   Performance:        undefined;
+  Rebalance:          undefined;
   Tca:                undefined;
   TcaDetail:          { orderId: string };
 };
@@ -65,6 +68,10 @@ export type MoreStackParamList = {
   Settings:           undefined;
   TradeHistory:       undefined;
   News:               undefined;
+  PriceAlerts:        undefined;
+  OrderTemplates:     undefined;
+  CashLedger:         undefined;
+  ProfitCalculator:   undefined;
   AIInsights:         undefined;
   AIPortfolioAdvisor: undefined;
   AIChat:             undefined;
