@@ -26,6 +26,7 @@ public class DataInitializer implements CommandLineRunner {
     @Autowired private IpoListingRepository ipoListingRepository;
     @Autowired private InstrumentService instrumentService;
     @Autowired private PasswordEncoder passwordEncoder;
+    @Autowired private com.demo.oms.repository.HolidayCalendarRepository holidayCalendarRepository;
 
     @Override
     public void run(String... args) {
@@ -36,8 +37,45 @@ public class DataInitializer implements CommandLineRunner {
         seedOmsUsers();
         seedComplianceRules();
         seedIpoListings();
+        seedHolidays();
         log.info("Data initialization complete — {} instruments, {} users, {} compliance rules loaded",
                 instrumentRepository.count(), omsUserRepository.count(), complianceRuleRepository.count());
+    }
+
+    private void seedHolidays() {
+        if (holidayCalendarRepository.count() > 0) return;
+        Object[][] holidays = {
+            // 2025
+            {2025, 2, 21, "International Mother Language Day", "PUBLIC"},
+            {2025, 3, 26, "Independence Day", "PUBLIC"},
+            {2025, 4, 14, "Bengali New Year (Pohela Boishakh)", "PUBLIC"},
+            {2025, 5, 1,  "May Day (International Labour Day)", "PUBLIC"},
+            {2025, 3, 30, "Eid ul-Fitr Day 1", "RELIGIOUS"},
+            {2025, 3, 31, "Eid ul-Fitr Day 2", "RELIGIOUS"},
+            {2025, 4, 1,  "Eid ul-Fitr Day 3", "RELIGIOUS"},
+            {2025, 6, 6,  "Eid ul-Adha Day 1", "RELIGIOUS"},
+            {2025, 6, 7,  "Eid ul-Adha Day 2", "RELIGIOUS"},
+            {2025, 6, 8,  "Eid ul-Adha Day 3", "RELIGIOUS"},
+            {2025, 8, 15, "National Mourning Day (Sheikh Mujibur Rahman)", "PUBLIC"},
+            {2025, 12, 16, "Victory Day", "PUBLIC"},
+            // 2026
+            {2026, 2, 21, "International Mother Language Day", "PUBLIC"},
+            {2026, 3, 26, "Independence Day", "PUBLIC"},
+            {2026, 4, 14, "Bengali New Year (Pohela Boishakh)", "PUBLIC"},
+            {2026, 5, 1,  "May Day (International Labour Day)", "PUBLIC"},
+            {2026, 8, 15, "National Mourning Day", "PUBLIC"},
+            {2026, 12, 16, "Victory Day", "PUBLIC"},
+        };
+        for (Object[] h : holidays) {
+            com.demo.oms.domain.HolidayCalendar hc = new com.demo.oms.domain.HolidayCalendar();
+            hc.setDate(LocalDate.of((int)h[0], (int)h[1], (int)h[2]));
+            hc.setName((String)h[3]);
+            hc.setType((String)h[4]);
+            hc.setExchange("ALL");
+            hc.setActive(true);
+            holidayCalendarRepository.save(hc);
+        }
+        log.info("Holiday calendar seeded with {} entries", holidayCalendarRepository.count());
     }
 
     private void backfillFundamentals() {

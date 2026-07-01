@@ -2,7 +2,9 @@ package com.demo.oms.enums;
 
 public enum ExchangeType {
     DSE("Dhaka Stock Exchange", "DSE", "BD"),
-    CSE("Chittagong Stock Exchange", "CSE", "BD");
+    CSE("Chittagong Stock Exchange", "CSE", "BD"),
+    OTC("Over The Counter", "OTC", "BD"),
+    DARK_POOL("Dark Pool", "DARK", "BD");
 
     private final String fullName;
     private final String mic;       // Market Identifier Code

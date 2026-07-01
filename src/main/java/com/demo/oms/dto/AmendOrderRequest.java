@@ -1,5 +1,6 @@
 package com.demo.oms.dto;
 
+import com.demo.oms.enums.TimeInForce;
 import jakarta.validation.constraints.DecimalMin;
 import lombok.Data;
 
@@ -16,5 +17,9 @@ public class AmendOrderRequest {
 
     private BigDecimal newStopPrice;
 
+    private TimeInForce newTimeInForce;   // Allows validity change (DAY→GTC etc.)
+
     private String reason;
+
+    private String dealerNotes;           // Dealer annotation for this amendment
 }
