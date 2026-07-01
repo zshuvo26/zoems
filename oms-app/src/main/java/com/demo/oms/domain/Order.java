@@ -33,16 +33,26 @@ public class Order {
 
     // Participants
     private String accountId;         // BO Account Number
+    private String boid;              // Beneficial Owner ID (mandatory for BD market)
     private String traderId;
+    private String dealerId;          // Dealer who entered/managed the order
+    private String dealerName;
     private String brokerId;
 
     // Instrument
     private String symbol;
+    private String isin;              // International Securities Identification Number
 
     @Enumerated(EnumType.STRING)
     private ExchangeType exchange;
 
     private String board; // A, B, Z, SME, G (DSE board categories)
+
+    @Enumerated(EnumType.STRING)
+    private com.demo.oms.enums.AssetClass assetClass = com.demo.oms.enums.AssetClass.EQUITY;
+
+    // Parent order reference (for child orders created by splitting)
+    private UUID parentOrderId;
 
     // Order classification
     @Enumerated(EnumType.STRING)
@@ -53,6 +63,9 @@ public class Order {
 
     @Enumerated(EnumType.STRING)
     private TimeInForce timeInForce = TimeInForce.DAY;
+
+    @Enumerated(EnumType.STRING)
+    private com.demo.oms.enums.SettlementType settlementType = com.demo.oms.enums.SettlementType.T2;
 
     @Enumerated(EnumType.STRING)
     private OrderStatus status = OrderStatus.NEW;
@@ -101,6 +114,12 @@ public class Order {
 
     @Column(length = 500)
     private String text;
+
+    @Column(length = 500)
+    private String remarks;            // Client-provided free text
+
+    @Column(length = 1000)
+    private String dealerNotes;        // Internal dealer annotations
 
     // Order source
     private String source; // ONLINE, MOBILE, API, PHONE, DEALER

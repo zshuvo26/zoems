@@ -490,6 +490,140 @@ export interface PreTradeCost {
   effectivePct: number;
 }
 
+// ─── Asset Classes & Settlement ──────────────────────────────────────────────
+export type AssetClass =
+  | 'EQUITY' | 'BOND' | 'ETF' | 'MUTUAL_FUND'
+  | 'T_BILL' | 'T_BOND' | 'SUKUK' | 'CORPORATE_BOND'
+  | 'IPO' | 'RIGHTS';
+
+export type SettlementType = 'T0' | 'T1' | 'T2' | 'T3' | 'DVP' | 'FOP';
+
+// ─── Parent Orders ────────────────────────────────────────────────────────────
+export interface ParentOrder {
+  id: string;
+  accountId: string;
+  boid?: string;
+  dealerId?: string;
+  symbol: string;
+  isin?: string;
+  exchange: 'DSE' | 'CSE' | 'OTC' | 'DARK_POOL';
+  assetClass: AssetClass;
+  side: 'BUY' | 'SELL';
+  totalQuantity: number;
+  executedQuantity: number;
+  remainingQuantity: number;
+  priceLimit?: number;
+  numSlices: number;
+  completedSlices: number;
+  status: string;
+  progressPct: number;
+  notes?: string;
+  children: Order[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface ParentOrderRequest {
+  accountId: string;
+  boid?: string;
+  dealerId?: string;
+  symbol: string;
+  isin?: string;
+  exchange: 'DSE' | 'CSE';
+  side: 'BUY' | 'SELL';
+  assetClass?: AssetClass;
+  totalQuantity: number;
+  priceLimit?: number;
+  numSlices: number;
+  notes?: string;
+}
+
+// ─── Saved Baskets ────────────────────────────────────────────────────────────
+export interface SavedBasket {
+  id: string;
+  accountId: string;
+  basketName: string;
+  description?: string;
+  status: 'DRAFT' | 'APPROVED' | 'SCHEDULED' | 'EXECUTED';
+  allOrNone: boolean;
+  orderCount: number;
+  scheduledAt?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+// ─── Holiday Calendar ─────────────────────────────────────────────────────────
+export interface HolidayCalendar {
+  id: number;
+  date: string;
+  exchange: string;
+  name: string;
+  type: string;
+  active: boolean;
+}
+
+// ─── Latency Report ───────────────────────────────────────────────────────────
+export interface ComponentStats {
+  component: string;
+  avgMs: number;
+  p50Ms: number;
+  p95Ms: number;
+  p99Ms: number;
+  sampleCount: number;
+  alertCount: number;
+  status: 'GREEN' | 'YELLOW' | 'RED' | 'UNKNOWN';
+}
+
+export interface LatencyAlert {
+  component: string;
+  latencyMs: number;
+  orderId?: string;
+  timestamp: string;
+}
+
+export interface LatencyReport {
+  reportGeneratedAt: string;
+  periodHours: string;
+  componentStats: Record<string, ComponentStats>;
+  recentAlerts: LatencyAlert[];
+  totalSamples: number;
+  totalAlerts: number;
+}
+
+// ─── Smart Order Router ───────────────────────────────────────────────────────
+export interface VenueScore {
+  venue: string;
+  score: number;
+  liquidityScore: number;
+  feeScore: number;
+  latencyScore: number;
+  rationale: string;
+}
+
+export interface SmartRouterResult {
+  selectedVenue: string;
+  selectedScore: number;
+  primaryReason: string;
+  allVenueScores: VenueScore[];
+  symbol: string;
+  side: string;
+  quantity: number;
+}
+
+// ─── Order Search ─────────────────────────────────────────────────────────────
+export interface OrderSearchParams {
+  accountId?: string;
+  symbol?: string;
+  isin?: string;
+  boid?: string;
+  dealerId?: string;
+  exchange?: string;
+  status?: string;
+  side?: string;
+  dateFrom?: string;
+  dateTo?: string;
+}
+
 // ─── Corporate Actions ────────────────────────────────────────────────────────
 export interface CorporateAction {
   id: string;

@@ -1,9 +1,12 @@
 package com.demo.oms.controller;
 
 import com.demo.oms.dto.*;
+import com.demo.oms.enums.ExchangeType;
+import com.demo.oms.enums.OrderSide;
 import com.demo.oms.enums.OrderStatus;
 import com.demo.oms.service.AuditService;
 import com.demo.oms.service.OrderService;
+import org.springframework.format.annotation.DateTimeFormat;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -170,5 +173,60 @@ public class OrderController {
                 .map(OrderAuditResponse::from)
                 .toList();
         return ResponseEntity.ok(com.demo.oms.dto.ApiResponse.ok(trail));
+    }
+
+    @Operation(
+        summary = "Search orders with multi-field filters",
+        description = "Search by accountId, symbol, ISIN, BOID, dealerId, exchange, status, side, date range. "
+            + "All parameters optional — combine freely."
+    )
+    @GetMapping("/search")
+    public ResponseEntity<com.demo.oms.dto.ApiResponse<List<OrderResponse>>> search(
+            @Parameter(description = "BO Account number") @RequestParam(required = false) String accountId,
+            @Parameter(description = "Instrument symbol") @RequestParam(required = false) String symbol,
+            @Parameter(description = "ISIN")             @RequestParam(required = false) String isin,
+            @Parameter(description = "BOID")             @RequestParam(required = false) String boid,
+            @Parameter(description = "Dealer ID")        @RequestParam(required = false) String dealerId,
+            @Parameter(description = "Exchange")         @RequestParam(required = false) ExchangeType exchange,
+            @Parameter(description = "Order status")     @RequestParam(required = false) OrderStatus status,
+            @Parameter(description = "Side")             @RequestParam(required = false) OrderSide side,
+            @Parameter(description = "From date (yyyy-MM-dd)") @RequestParam(required = false)
+                @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) java.time.LocalDate dateFrom,
+            @Parameter(description = "To date (yyyy-MM-dd)")   @RequestParam(required = false)
+                @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) java.time.LocalDate dateTo) {
+        OrderSearchRequest req = new OrderSearchRequest();
+        req.setAccountId(accountId);
+        req.setSymbol(symbol);
+        req.setIsin(isin);
+        req.setBoid(boid);
+        req.setDealerId(dealerId);
+        req.setExchange(exchange);
+        req.setStatus(status);
+        req.setSide(side);
+        req.setDateFrom(dateFrom);
+        req.setDateTo(dateTo);
+        return ResponseEntity.ok(com.demo.oms.dto.ApiResponse.ok(orderService.searchOrders(req)));
+    }
+
+    @Operation(
+        summary = "Bulk cancel multiple orders",
+        description = "Cancels a list of order IDs in a single call. Orders that cannot be cancelled are skipped."
+    )
+    @PostMapping("/bulk-cancel")
+    public ResponseEntity<com.demo.oms.dto.ApiResponse<List<OrderResponse>>> bulkCancel(
+            @Valid @RequestBody BulkCancelRequest req) {
+        return ResponseEntity.ok(com.demo.oms.dto.ApiResponse.ok(
+                "Bulk cancel processed", orderService.bulkCancel(req)));
+    }
+
+    @Operation(
+        summary = "Clone an existing order",
+        description = "Copies all order parameters and submits as a fresh order."
+    )
+    @PostMapping("/{id}/clone")
+    public ResponseEntity<com.demo.oms.dto.ApiResponse<OrderResponse>> clone(
+            @Parameter(description = "Order UUID to clone") @PathVariable String id) {
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(com.demo.oms.dto.ApiResponse.ok("Order cloned", orderService.cloneOrder(id)));
     }
 }

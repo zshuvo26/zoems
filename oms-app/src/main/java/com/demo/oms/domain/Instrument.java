@@ -28,6 +28,9 @@ public class Instrument {
     @Enumerated(EnumType.STRING)
     private ExchangeType exchange;
 
+    @Enumerated(EnumType.STRING)
+    private com.demo.oms.enums.AssetClass assetClass = com.demo.oms.enums.AssetClass.EQUITY;
+
     private String board;
     private String isin;
     private String sector;

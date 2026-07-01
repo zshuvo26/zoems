@@ -21,6 +21,11 @@ public class Account {
     private String phone;
     private String nationalId;      // NID for Bangladesh KYC
 
+    private String boid;             // Beneficial Owner ID (CDBL assigned)
+    private String clientCode;       // Short client code used by dealer terminal
+    private String dealerId;         // Assigned dealer for this account
+    private String dealerName;
+
     private String traderId;
     private String brokerId;
     private String brokerName;

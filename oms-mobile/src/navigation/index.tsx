@@ -51,6 +51,10 @@ import ProfitCalculatorScreen from '../screens/more/ProfitCalculatorScreen';
 import AIInsightsScreen from '../screens/ai/AIInsightsScreen';
 import AIPortfolioAdvisorScreen from '../screens/ai/AIPortfolioAdvisorScreen';
 import AIChatScreen from '../screens/ai/AIChatScreen';
+import OrderSearchScreen from '../screens/orders/OrderSearchScreen';
+import ParentOrderScreen from '../screens/orders/ParentOrderScreen';
+import SavedBasketsScreen from '../screens/basket/SavedBasketsScreen';
+import LatencyMonitorScreen from '../screens/more/LatencyMonitorScreen';
 
 import type {
   RootStackParamList, TabParamList,
@@ -99,6 +103,9 @@ function TradeNavigator() {
       <TradeStack.Screen name="AlgoList"     component={AlgoOrdersScreen}   options={{ title: 'Algo Orders' }} />
       <TradeStack.Screen name="NewAlgoOrder" component={NewAlgoScreen}      options={{ title: 'New Algo Order', presentation: 'modal' }} />
       <TradeStack.Screen name="BasketOrder"  component={BasketScreen}       options={{ title: 'Basket Order', presentation: 'modal' }} />
+      <TradeStack.Screen name="OrderSearch"  component={OrderSearchScreen}  options={{ title: 'Order Search' }} />
+      <TradeStack.Screen name="ParentOrder"  component={ParentOrderScreen}  options={{ title: 'Parent Order' }} />
+      <TradeStack.Screen name="SavedBaskets" component={SavedBasketsScreen} options={{ title: 'Saved Baskets' }} />
     </TradeStack.Navigator>
   );
 }
@@ -136,6 +143,9 @@ function MoreNavigator() {
       <MoreStack.Screen name="AIInsights"         component={AIInsightsScreen}         options={{ title: 'AI Market Signals' }} />
       <MoreStack.Screen name="AIPortfolioAdvisor" component={AIPortfolioAdvisorScreen} options={{ title: 'AI Portfolio Advisor' }} />
       <MoreStack.Screen name="AIChat"             component={AIChatScreen}             options={{ title: 'AI Trading Assistant' }} />
+      <MoreStack.Screen name="LatencyMonitor"     component={LatencyMonitorScreen}     options={{ title: 'Latency Monitor' }} />
+      <MoreStack.Screen name="OrderSearch"        component={OrderSearchScreen}        options={{ title: 'Order Search' }} />
+      <MoreStack.Screen name="SavedBaskets"       component={SavedBasketsScreen}       options={{ title: 'Saved Baskets' }} />
     </MoreStack.Navigator>
   );
 }

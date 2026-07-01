@@ -63,7 +63,7 @@ public class PriceAlertService {
                         .findFirst().orElse(null));
                 if (inst == null) continue;
                 BigDecimal last     = inst.getLastPrice();
-                BigDecimal prev     = inst.getPrevClose() != null ? inst.getPrevClose() : last;
+                BigDecimal prev     = inst.getPreviousClose() != null ? inst.getPreviousClose() : last;
                 boolean   triggered = false;
 
                 switch (alert.getCondition()) {

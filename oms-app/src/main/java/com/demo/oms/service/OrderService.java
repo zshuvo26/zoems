@@ -4,9 +4,7 @@ import com.demo.oms.domain.Account;
 import com.demo.oms.domain.Instrument;
 import com.demo.oms.domain.Order;
 import com.demo.oms.dto.*;
-import com.demo.oms.enums.OrderSide;
-import com.demo.oms.enums.OrderStatus;
-import com.demo.oms.enums.OrderType;
+import com.demo.oms.enums.*;
 import com.demo.oms.exception.MarketClosedException;
 import com.demo.oms.exception.OmsException;
 import com.demo.oms.exception.OrderNotFoundException;
@@ -22,6 +20,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -175,16 +174,70 @@ public class OrderService {
                 .stream().map(this::toResponse).collect(Collectors.toList());
     }
 
+    public List<OrderResponse> searchOrders(OrderSearchRequest req) {
+        LocalDateTime dateFrom = req.getDateFrom() != null ? req.getDateFrom().atStartOfDay() : null;
+        LocalDateTime dateTo   = req.getDateTo()   != null ? req.getDateTo().atTime(23, 59, 59) : null;
+        return orderRepository.search(
+            req.getAccountId(), req.getSymbol(), req.getIsin(), req.getBoid(),
+            req.getDealerId(), req.getExchange(), req.getStatus(), req.getSide(),
+            dateFrom, dateTo
+        ).stream().map(this::toResponse).collect(Collectors.toList());
+    }
+
+    @Transactional
+    public List<OrderResponse> bulkCancel(BulkCancelRequest req) {
+        List<OrderResponse> results = new ArrayList<>();
+        for (String orderId : req.getOrderIds()) {
+            try {
+                CancelOrderRequest cancel = new CancelOrderRequest();
+                cancel.setReason(req.getReason());
+                results.add(cancelOrder(orderId, cancel));
+            } catch (Exception e) {
+                log.warn("Bulk cancel failed for order {}: {}", orderId, e.getMessage());
+            }
+        }
+        return results;
+    }
+
+    @Transactional
+    public OrderResponse cloneOrder(String orderId) {
+        Order source = findById(orderId);
+        OrderRequest req = new OrderRequest();
+        req.setAccountId(source.getAccountId());
+        req.setBoid(source.getBoid());
+        req.setDealerId(source.getDealerId());
+        req.setSymbol(source.getSymbol());
+        req.setIsin(source.getIsin());
+        req.setExchange(source.getExchange());
+        req.setSide(source.getSide());
+        req.setOrderType(source.getOrderType());
+        req.setTimeInForce(source.getTimeInForce());
+        req.setQuantity(source.getQuantity());
+        req.setPrice(source.getPrice());
+        req.setStopPrice(source.getStopPrice());
+        req.setDisplayQuantity(source.getDisplayQuantity());
+        req.setAssetClass(source.getAssetClass());
+        req.setSettlementType(source.getSettlementType());
+        req.setSource("CLONE");
+        req.setRemarks("Cloned from order " + orderId);
+        return submitOrder(req);
+    }
+
     // ── Helpers ──────────────────────────────────────────────────────────
 
     private Order buildOrder(OrderRequest req) {
         Order o = new Order();
         o.setAccountId(req.getAccountId());
+        o.setBoid(req.getBoid());
+        o.setDealerId(req.getDealerId());
         o.setSymbol(req.getSymbol().toUpperCase().trim());
+        o.setIsin(req.getIsin());
         o.setExchange(req.getExchange());
         o.setSide(req.getSide());
         o.setOrderType(req.getOrderType());
-        o.setTimeInForce(req.getTimeInForce() != null ? req.getTimeInForce() : com.demo.oms.enums.TimeInForce.DAY);
+        o.setTimeInForce(req.getTimeInForce() != null ? req.getTimeInForce() : TimeInForce.DAY);
+        o.setAssetClass(req.getAssetClass() != null ? req.getAssetClass() : AssetClass.EQUITY);
+        o.setSettlementType(req.getSettlementType() != null ? req.getSettlementType() : SettlementType.T2);
         o.setQuantity(req.getQuantity());
         o.setPrice(req.getPrice());
         o.setStopPrice(req.getStopPrice());
@@ -192,13 +245,18 @@ public class OrderService {
         o.setExpireDate(req.getExpireDate());
         o.setSource(req.getSource() != null ? req.getSource() : "API");
         o.setText(req.getText());
+        o.setRemarks(req.getRemarks());
+        o.setDealerNotes(req.getDealerNotes());
         o.setStatus(OrderStatus.NEW);
         o.setFilledQuantity(BigDecimal.ZERO);
         o.setRemainingQuantity(req.getQuantity());
         o.setCurrency("BDT");
 
-        // inherit board from instrument master
-        instrumentRepository.findById(o.getSymbol()).ifPresent(inst -> o.setBoard(inst.getBoard()));
+        // inherit board and ISIN from instrument master
+        instrumentRepository.findById(o.getSymbol()).ifPresent(inst -> {
+            o.setBoard(inst.getBoard());
+            if (o.getIsin() == null) o.setIsin(inst.getIsin());
+        });
 
         return o;
     }
@@ -246,12 +304,18 @@ public class OrderService {
         r.setClientOrderId(o.getClientOrderId());
         r.setExchangeOrderId(o.getExchangeOrderId());
         r.setAccountId(o.getAccountId());
+        r.setBoid(o.getBoid());
+        r.setDealerId(o.getDealerId());
+        r.setDealerName(o.getDealerName());
         r.setSymbol(o.getSymbol());
+        r.setIsin(o.getIsin());
         r.setExchange(o.getExchange());
+        r.setAssetClass(o.getAssetClass());
         r.setBoard(o.getBoard());
         r.setSide(o.getSide());
         r.setOrderType(o.getOrderType());
         r.setTimeInForce(o.getTimeInForce());
+        r.setSettlementType(o.getSettlementType());
         r.setStatus(o.getStatus());
         r.setQuantity(o.getQuantity());
         r.setFilledQuantity(o.getFilledQuantity());
@@ -267,7 +331,10 @@ public class OrderService {
         r.setRejectionReason(o.getRejectionReason());
         r.setCancelReason(o.getCancelReason());
         r.setText(o.getText());
+        r.setRemarks(o.getRemarks());
+        r.setDealerNotes(o.getDealerNotes());
         r.setSource(o.getSource());
+        r.setParentOrderId(o.getParentOrderId());
         r.setSettlementDate(o.getSettlementDate());
         r.setSettled(o.isSettled());
         r.setCreatedAt(o.getCreatedAt());
