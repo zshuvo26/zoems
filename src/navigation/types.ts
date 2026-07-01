@@ -41,6 +41,9 @@ export type TradeStackParamList = {
   NewAlgoOrder:  { symbol?: string; exchange?: string };
   AlgoDetail:    { algoId: string };
   BasketOrder:   undefined;
+  OrderSearch:   undefined;
+  ParentOrder:   { parentOrderId?: string };
+  SavedBaskets:  undefined;
 };
 
 // Portfolio stack
@@ -75,6 +78,9 @@ export type MoreStackParamList = {
   AIInsights:         undefined;
   AIPortfolioAdvisor: undefined;
   AIChat:             undefined;
+  LatencyMonitor:     undefined;
+  OrderSearch:        undefined;
+  SavedBaskets:       undefined;
 };
 
 export type RootStackProps<T extends keyof RootStackParamList>   = NativeStackScreenProps<RootStackParamList, T>;

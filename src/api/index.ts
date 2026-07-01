@@ -14,6 +14,12 @@ import type {
   ComplianceRule, CorporateAction,
   PriceAlert, OrderTemplate, LedgerEntry, ForeignFlowResponse, PreTradeCost,
   PageResponse,
+  ParentOrder, ParentOrderRequest,
+  SavedBasket,
+  HolidayCalendar,
+  LatencyReport,
+  SmartRouterResult,
+  OrderSearchParams,
 } from '../types/api';
 
 // ─── Auth ────────────────────────────────────────────────────────────────────
@@ -69,6 +75,15 @@ export const ordersApi = {
 
   audit: (orderId: string) =>
     apiClient.get<OrderAuditEvent[]>(`/api/v1/orders/${orderId}/audit`).then(r => r.data),
+
+  search: (params: OrderSearchParams) =>
+    apiClient.get<Order[]>('/api/v1/orders/search', { params }).then(r => r.data),
+
+  bulkCancel: (orderIds: string[], reason?: string) =>
+    apiClient.post<Order[]>('/api/v1/orders/bulk-cancel', { orderIds, reason }).then(r => r.data),
+
+  clone: (orderId: string) =>
+    apiClient.post<Order>(`/api/v1/orders/${orderId}/clone`).then(r => r.data),
 };
 
 // ─── Portfolio ───────────────────────────────────────────────────────────────
@@ -252,4 +267,54 @@ export const corporateApi = {
     apiClient.get<CorporateAction[]>('/api/v1/corporate-actions/upcoming', { params: { days } }).then(r => r.data),
   all: () =>
     apiClient.get<CorporateAction[]>('/api/v1/corporate-actions').then(r => r.data),
+};
+
+// ─── Parent Orders ────────────────────────────────────────────────────────────
+export const parentOrderApi = {
+  create: (req: ParentOrderRequest) =>
+    apiClient.post<ParentOrder>('/api/v1/parent-orders', req).then(r => r.data),
+  get: (id: string) =>
+    apiClient.get<ParentOrder>(`/api/v1/parent-orders/${id}`).then(r => r.data),
+  byAccount: (accountId: string) =>
+    apiClient.get<ParentOrder[]>(`/api/v1/parent-orders/account/${accountId}`).then(r => r.data),
+};
+
+// ─── Saved Baskets ────────────────────────────────────────────────────────────
+export const savedBasketApi = {
+  list: (accountId: string) =>
+    apiClient.get<SavedBasket[]>(`/api/v1/saved-baskets/account/${accountId}`).then(r => r.data),
+  get: (id: string) =>
+    apiClient.get<SavedBasket>(`/api/v1/saved-baskets/${id}`).then(r => r.data),
+  save: (payload: { accountId: string; basketName: string; description?: string; allOrNone?: boolean; orders?: any[] }) =>
+    apiClient.post<SavedBasket>('/api/v1/saved-baskets', payload).then(r => r.data),
+  execute: (id: string) =>
+    apiClient.post<any>(`/api/v1/saved-baskets/${id}/execute`).then(r => r.data),
+  approve: (id: string) =>
+    apiClient.post<SavedBasket>(`/api/v1/saved-baskets/${id}/approve`).then(r => r.data),
+  clone: (id: string, newName: string) =>
+    apiClient.post<SavedBasket>(`/api/v1/saved-baskets/${id}/clone`, null, { params: { newName } }).then(r => r.data),
+  schedule: (id: string, scheduledAt: string) =>
+    apiClient.post<SavedBasket>(`/api/v1/saved-baskets/${id}/schedule`, null, { params: { scheduledAt } }).then(r => r.data),
+  delete: (id: string) =>
+    apiClient.delete<void>(`/api/v1/saved-baskets/${id}`).then(r => r.data),
+};
+
+// ─── Holidays ─────────────────────────────────────────────────────────────────
+export const holidayApi = {
+  list: () =>
+    apiClient.get<HolidayCalendar[]>('/api/v1/holidays').then(r => r.data),
+  range: (from: string, to: string) =>
+    apiClient.get<HolidayCalendar[]>('/api/v1/holidays/range', { params: { from, to } }).then(r => r.data),
+  check: (date: string, exchange = 'ALL') =>
+    apiClient.get<boolean>('/api/v1/holidays/check', { params: { date, exchange } }).then(r => r.data),
+};
+
+// ─── EMS Analytics ───────────────────────────────────────────────────────────
+export const emsApi = {
+  latencyReport: (periodHours = 24) =>
+    apiClient.get<LatencyReport>('/api/v1/ems/latency/report', { params: { periodHours } }).then(r => r.data),
+  smartRoute: (symbol: string, side: string, quantity: number, priceLimit?: number) =>
+    apiClient.get<SmartRouterResult>('/api/v1/ems/route', {
+      params: { symbol, side, quantity, priceLimit },
+    }).then(r => r.data),
 };
