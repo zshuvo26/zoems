@@ -1,0 +1,29 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * { box-sizing: border-box; }
+  body {
+    @apply bg-bg-primary text-white font-sans antialiased;
+    margin: 0;
+  }
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { @apply bg-bg-secondary; }
+  ::-webkit-scrollbar-thumb { @apply bg-border rounded-full; }
+  ::-webkit-scrollbar-thumb:hover { @apply bg-muted; }
+}
+
+@layer components {
+  .card { @apply bg-bg-card rounded-xl border border-border p-4; }
+  .btn-primary { @apply bg-accent-blue hover:bg-accent-blue-dark text-white font-semibold px-4 py-2 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed; }
+  .btn-outline { @apply border border-border hover:border-accent-blue text-white px-4 py-2 rounded-lg transition-colors; }
+  .btn-danger { @apply bg-bear hover:opacity-80 text-white font-semibold px-4 py-2 rounded-lg transition-colors; }
+  .btn-success { @apply bg-bull hover:opacity-80 text-white font-semibold px-4 py-2 rounded-lg transition-colors; }
+  .input { @apply bg-bg-secondary border border-border rounded-lg px-3 py-2 text-white placeholder-muted focus:outline-none focus:border-accent-blue w-full text-sm; }
+  .label { @apply text-muted text-xs font-medium mb-1 block; }
+  .badge-buy { @apply bg-bull/20 text-bull text-xs font-bold px-2 py-0.5 rounded; }
+  .badge-sell { @apply bg-bear/20 text-bear text-xs font-bold px-2 py-0.5 rounded; }
+  .positive { @apply text-bull; }
+  .negative { @apply text-bear; }
+}
